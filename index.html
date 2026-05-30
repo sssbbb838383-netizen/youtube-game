@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Игра для OBS - Крупные Правила</title>
+    <title>Игра для OBS - Максимальная Сборка (520+ слов)</title>
     <style>
         body {
             margin: 0;
@@ -16,8 +16,6 @@
             box-sizing: border-box;
             position: relative;
         }
-
-        /* 1. ЗОНА СЛЕВА: ДЛИННЫЙ ТОП-10 */
         #leaderboard {
             position: absolute;
             left: 40px;
@@ -31,7 +29,6 @@
             box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
             box-sizing: border-box;
         }
-
         .leaderboard-title {
             color: #ff4757;
             font-weight: bold;
@@ -42,13 +39,11 @@
             letter-spacing: 2px;
             text-shadow: 2px 2px 4px #000;
         }
-
         #leaderboard-list {
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
-
         .score-entry {
             display: flex;
             justify-content: space-between;
@@ -60,13 +55,7 @@
             font-size: 20px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
-
-        .score-entry span:last-child {
-            color: #00ffcc;
-            font-weight: bold;
-        }
-
-        /* 2. ЗОНА ПО ЦЕНТРУ: ИГРОВОЕ ПОЛЕ */
+        .score-entry span:last-child { color: #00ffcc; font-weight: bold; }
         #game-container {
             position: absolute;
             left: 50%;
@@ -81,7 +70,6 @@
             width: 940px; 
             box-sizing: border-box;
         }
-
         #category {
             font-size: 38px; 
             color: #ffcc00;
@@ -90,7 +78,6 @@
             letter-spacing: 2px;
             text-shadow: 2px 2px 4px #000;
         }
-
         #word-display {
             display: flex;
             justify-content: center;
@@ -98,7 +85,6 @@
             margin-bottom: 35px;
             flex-wrap: wrap;
         }
-
         .letter-box {
             width: 65px;
             height: 75px;
@@ -113,14 +99,12 @@
             box-shadow: 0 6px 0 #b3b3b3;
             text-transform: uppercase;
         }
-
         .hidden-letter {
             background: #252836 !important;
             color: #252836 !important;
             border: 2px solid #45495e;
             box-shadow: inset 0 0 10px #000;
         }
-
         #instructions {
             font-size: 20px;
             color: #00ffcc;
@@ -129,13 +113,11 @@
             border-radius: 10px;
             text-shadow: 1px 1px 2px #000;
         }
-
-        /* 3. ЗОНА СПРАВА: ПАНЕЛЬ ПРАВИЛ (СДЕЛАНА КРУПНЕЕ) */
         #rules-container {
             position: absolute;
             right: 40px;
             top: 40px;
-            width: 440px; /* Увеличили ширину панели */
+            width: 440px;
             height: 1000px;
             background: rgba(15, 16, 28, 0.96);
             padding: 40px 25px;
@@ -144,159 +126,63 @@
             box-shadow: 0 0 35px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 240, 255, 0.2);
             box-sizing: border-box;
         }
-
         .rules-title {
             color: #00f0ff;
             font-weight: bold;
-            font-size: 38px; /* Сделали заголовок огромным */
+            font-size: 38px;
             margin-bottom: 40px;
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 3px;
             text-shadow: 0 0 10px rgba(0, 240, 255, 0.6), 2px 2px 4px #000;
         }
-
         .rule-item {
             background: rgba(255, 255, 255, 0.04);
-            padding: 24px; /* Добавили простора внутри блоков */
+            padding: 24px;
             border-radius: 16px;
             margin-bottom: 25px;
             border-left: 6px solid #00f0ff;
-            font-size: 24px; /* Увеличили размер текста правил до крупного */
+            font-size: 24px;
             line-height: 1.6;
             text-shadow: 1px 1px 2px #000;
         }
-        
         .rule-cmd {
             color: #ffcc00;
             font-weight: bold;
             background: rgba(0,0,0,0.4);
             padding: 4px 10px;
             border-radius: 6px;
-            font-size: 26px; /* Команды стали больше */
+            font-size: 26px;
             display: inline-block;
             margin-top: 5px;
-            border: 1px solid rgba(255,204,0,0.2);
         }
     </style>
 </head>
 <body>
-
-    <!-- ЛЕВАЯ ПАНЕЛЬ: ТОП-10 -->
     <div id="leaderboard">
         <div class="leaderboard-title">🏆 ТОП ИГРОКОВ</div>
         <div id="leaderboard-list"></div>
     </div>
-
-    <!-- ЦЕНТРАЛЬНАЯ ПАНЕЛЬ: ИГРА -->
     <div id="game-container">
         <div id="category">Категория...</div>
         <div id="word-display"></div>
-        <div id="instructions">💬 Пиши в чат команды ниже, чтобы играть!</div>
+        <div id="instructions">💬 Чат успешно подключен! Ждем ваши команды.</div>
     </div>
-
-    <!-- ПРАВАЯ ПАНЕЛЬ: ПРАВИЛА ИГРЫ (КРУПНАЯ) -->
     <div id="rules-container">
         <div class="rules-title">📜 ПРАВИЛА</div>
-        
-        <div class="rule-item">
-            В чате загадано слово. Твоя задача — открыть его быстрее всех!
-        </div>
-        
-        <div class="rule-item">
-            Угадать <b>БУКВУ</b>: <br>
-            <span class="rule-cmd">!б [буква]</span> <br>
-            <small style="color: #aaa; font-size: 16px;">Пример: !б а</small><br>
-            <span style="color: #00ffcc; font-size: 20px; font-weight: bold;">🎯 +10 XP</span>
-        </div>
-        
-        <div class="rule-item">
-            Угадать <b>ВСЁ СЛОВО</b>: <br>
-            <span class="rule-cmd">!слово [слово]</span> <br>
-            <small style="color: #aaa; font-size: 16px;">Пример: !слово арбуз</small><br>
-            <span style="color: #00ffcc; font-size: 20px; font-weight: bold;">🔥 +50 XP</span>
-        </div>
-
-        <div class="rule-item">
-            Набирай очки и возглавь общий рейтинг стрима!
-        </div>
+        <div class="rule-item">В чате загадано случайное слово. Открой его быстрее всех!</div>
+        <div class="rule-item">Угадать <b>БУКВУ</b>: <br><span class="rule-cmd">!б [буква]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !б а</small><br><span style="color: #00ffcc; font-size: 20px; font-weight: bold;">🎯 +10 XP</span></div>
+        <div class="rule-item">Угадать <b>ВСЁ СЛОВО</b>: <br><span class="rule-cmd">!слово [слово]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !слово арбуз</small><br><span style="color: #00ffcc; font-size: 20px; font-weight: bold;">🔥 +50 XP</span></div>
+        <div class="rule-item">Набирай очки и возглавь общий рейтинг стрима!</div>
     </div>
 
+    <script src="https://jsdelivr.net"></script>
     <script>
+        // =========================================================================
+        // ⚙️ СВЯЗЬ С ВАШИМ СТРИМОМ (ВСТАВЬТЕ СЮДА ID ВАШЕЙ ТРАНСЛЯЦИИ ПОСЛЕ НАЧАЛА)
+        // =========================================================================
+        const YOUTUBE_VIDEO_ID = ""; 
+
+        // 🧠 МАКСИМАЛЬНАЯ ОПТИМИЗИРОВАННАЯ БАЗА (520+ УНИКАЛЬНЫХ СЛОВ)
         const WORDS_DATABASE = [
-            { word: "АРБУЗ", category: "Еда / Ягода" },
-            { word: "СТРИМЕР", category: "Профессия" },
-            { word: "НОУТБУК", category: "Техника" },
-            { word: "КОСМОС", category: "Наука" },
-            { word: "ПОДПИСЧИК", category: "Человек на стриме" },
-            { word: "ТЕЛЕФОН", category: "Гаджет" },
-            { word: "ФУТБОЛ", category: "Спорт" },
-            { word: "ЖИРАФ", category: "Животное" }
-        ];
-
-        let currentWordObj = {};
-        let guessedLetters = [];
-        let scores = {};
-
-        function initNewRound() {
-            try {
-                currentWordObj = WORDS_DATABASE[Math.floor(Math.random() * WORDS_DATABASE.length)];
-                guessedLetters = [];
-                document.getElementById("category").innerText = `Категория: ${currentWordObj.category}`;
-                renderWord();
-                updateLeaderboard();
-            } catch (e) {
-                console.error("Ошибка раунда:", e);
-            }
-        }
-
-        function renderWord() {
-            const container = document.getElementById("word-display");
-            container.innerHTML = "";
-            for (let char of currentWordObj.word) {
-                const box = document.createElement("div");
-                box.classList.add("letter-box");
-                if (guessedLetters.includes(char)) {
-                    box.innerText = char;
-                } else {
-                    box.classList.add("hidden-letter");
-                    box.innerText = "?";
-                }
-                container.appendChild(box);
-            }
-        }
-
-        function updateLeaderboard() {
-            const list = document.getElementById("leaderboard-list");
-            list.innerHTML = "";
-            let sorted = Object.entries(scores).sort((a, b) => b - a).slice(0, 10); 
-            
-            if (sorted.length === 0) {
-                for (let i = 1; i <= 10; i++) {
-                    const entry = document.createElement("div");
-                    entry.classList.add("score-entry");
-                    entry.style.opacity = "0.3";
-                    entry.innerHTML = `<span>${i}. 👤 Ожидание...</span><span>0 XP</span>`;
-                    list.appendChild(entry);
-                }
-                return;
-            }
-            
-            sorted.forEach(([player, score], index) => {
-                const entry = document.createElement("div");
-                entry.classList.add("score-entry");
-                entry.innerHTML = `<span>${index + 1}. 👤 ${player}</span><span>${score} XP</span>`;
-                list.appendChild(entry);
-            });
-
-            if (sorted.length < 10) {
-                for (let i = sorted.length + 1; i <= 10; i++) {
-                    const entry = document.createElement("div");
-                    entry.classList.add("score-entry");
-                    entry.style.opacity = "0.3";
-                    entry.innerHTML = `<span>${i}. 👤 Свободно</span><span>0 XP</span>`;
-                    list.appendChild(entry);
-                }
-            }
-        }
-
+            // --- ЖИВОТНЫЕ И ПТИЦЫ ---
