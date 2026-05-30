@@ -1,515 +1,259 @@
-const boss = {
-  name: "Demon King DobryyED",
-  maxHp: 500000,
-  hp: 500000,
-  phase: 1,
-  enraged: false,
-};
-
-const hpFill =
-  document.getElementById("boss-hp-fill");
-
-const currentHpEl =
-  document.getElementById("boss-current-hp");
-
-const maxHpEl =
-  document.getElementById("boss-max-hp");
-
-const raidMembers =
-  document.getElementById("raid-members");
-
-const floatingContainer =
-  document.getElementById(
-    "floating-damage-container"
-  );
-
-const battleLog =
-  document.getElementById("log-messages");
-
-const leaderboard =
-  document.getElementById("leaderboard");
-
-const overlay =
-  document.getElementById("overlay");
-
-const players = {};
-
-maxHpEl.textContent =
-  boss.maxHp.toLocaleString();
-
-/* -----------------------
-   PLAYER CLASSES
------------------------- */
-
-const classStats = {
-  warrior: {
-    min: 350,
-    max: 650,
-    critChance: 0.15
-  },
-
-  mage: {
-    min: 250,
-    max: 1100,
-    critChance: 0.20
-  },
-
-  rogue: {
-    min: 220,
-    max: 500,
-    critChance: 0.35
-  },
-
-  tank: {
-    min: 100,
-    max: 260,
-    critChance: 0.05
-  },
-
-  heal: {
-    min: 0,
-    max: 0,
-    critChance: 0
-  }
-};
-
-/* -----------------------
-   HP BAR
------------------------- */
-
-function updateHpBar() {
-  const percent =
-    (boss.hp / boss.maxHp) * 100;
-
-  hpFill.style.width =
-    `${percent}%`;
-
-  currentHpEl.textContent =
-    Math.max(
-      0,
-      Math.floor(boss.hp)
-    ).toLocaleString();
-
-  checkBossPhase();
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>OBS Game v2</title>
+<style>
+body {
+    margin:0;
+    overflow:hidden;
+    background:transparent;
+    font-family:Arial Black;
+    color:white;
 }
 
-/* -----------------------
-   BOSS PHASES
------------------------- */
-
-function checkBossPhase() {
-  const hpPercent =
-    (boss.hp / boss.maxHp) * 100;
-
-  if (
-    hpPercent <= 30 &&
-    boss.phase !== 3
-  ) {
-    boss.phase = 3;
-    boss.enraged = true;
-
-    addLog(
-      "😈 DEMON MODE ACTIVATED",
-      "crit"
-    );
-
-    startRageMode();
-  }
-
-  else if (
-    hpPercent <= 70 &&
-    boss.phase !== 2
-  ) {
-    boss.phase = 2;
-
-    addLog(
-      "🔥 Boss becomes enraged!",
-      "crit"
-    );
-  }
+/* GAME BOX */
+#game {
+    position:absolute;
+    left:50%;
+    top:55%;
+    transform:translate(-50%,-50%);
+    width:900px;
+    background:rgba(10,10,20,0.85);
+    padding:30px;
+    border-radius:25px;
+    text-align:center;
+    border:3px solid gold;
+    box-shadow:0 0 40px black;
+    transition:0.3s;
 }
 
-function startRageMode() {
-  overlay.animate([
-    {
-      filter: "brightness(1)"
-    },
-    {
-      filter: "brightness(1.3)"
-    },
-    {
-      filter: "brightness(1)"
-    }
-  ], {
-    duration: 800,
-    iterations: Infinity
-  });
+/* SHAKE */
+.shake {
+    animation: shake 0.4s;
+}
+@keyframes shake {
+    0% {transform:translate(-50%,-50%)}
+    25% {transform:translate(-48%,-52%)}
+    50% {transform:translate(-52%,-48%)}
+    75% {transform:translate(-49%,-51%)}
+    100% {transform:translate(-50%,-50%)}
 }
 
-/* -----------------------
-   LOG
------------------------- */
-
-function addLog(
-  message,
-  type = ""
-) {
-  const entry =
-    document.createElement("div");
-
-  entry.className =
-    `log-entry ${type}`;
-
-  entry.textContent =
-    message;
-
-  battleLog.prepend(entry);
-
-  if (
-    battleLog.children.length > 10
-  ) {
-    battleLog.removeChild(
-      battleLog.lastChild
-    );
-  }
+/* CATEGORY */
+#category {
+    font-size:34px;
+    color:gold;
+    margin-bottom:20px;
 }
 
-/* -----------------------
-   FLOAT DAMAGE
------------------------- */
-
-function spawnDamage(
-  amount,
-  crit = false,
-  ult = false
-) {
-  const el =
-    document.createElement("div");
-
-  el.className =
-    crit
-      ? "damage-number crit-number"
-      : "damage-number";
-
-  el.textContent =
-    ult
-      ? `☄️ ${amount}`
-      : crit
-      ? `💥 ${amount}`
-      : amount;
-
-  el.style.left =
-    Math.random() * 50 + 25 + "%";
-
-  el.style.top =
-    Math.random() * 40 + 20 + "%";
-
-  floatingContainer.appendChild(el);
-
-  setTimeout(() => {
-    el.remove();
-  }, 1400);
+/* WORD */
+#word {
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
 }
 
-/* -----------------------
-   LEADERBOARD
------------------------- */
-
-function updateLeaderboard() {
-  const oldRows =
-    leaderboard.querySelectorAll(
-      ".leader-row"
-    );
-
-  oldRows.forEach(r => r.remove());
-
-  const sorted =
-    Object.values(players)
-    .sort(
-      (a, b) =>
-        b.damage - a.damage
-    )
-    .slice(0, 5);
-
-  sorted.forEach((p, i) => {
-    const row =
-      document.createElement("div");
-
-    row.className =
-      "leader-row";
-
-    row.innerHTML = `
-      <span>
-      ${i + 1}. ${p.name}
-      </span>
-
-      <span>
-      ${p.damage.toLocaleString()}
-      </span>
-    `;
-
-    leaderboard.appendChild(row);
-  });
+.letter {
+    width:60px;
+    height:70px;
+    background:white;
+    color:black;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:40px;
+    border-radius:10px;
+    transition:0.25s;
 }
 
-/* -----------------------
-   JOIN RAID
------------------------- */
+.hidden {
+    background:#222;
+    color:#222;
+}
 
-function joinRaid(
-  username,
-  role
-) {
-  if (players[username]) {
-    return;
+/* XP POPUP */
+.xp {
+    position:absolute;
+    color:#00ff99;
+    font-size:22px;
+    animation: floatUp 1s forwards;
+}
+
+@keyframes floatUp {
+    0% {opacity:1; transform:translateY(0)}
+    100% {opacity:0; transform:translateY(-80px)}
+}
+
+/* LEADERBOARD */
+#leaderboard {
+    position:absolute;
+    left:30px;
+    top:30px;
+    width:300px;
+    background:rgba(0,0,0,0.75);
+    padding:20px;
+    border-radius:15px;
+    border:2px solid red;
+}
+</style>
+</head>
+
+<body>
+
+<div id="leaderboard">
+    <b>🏆 TOP PLAYERS</b>
+    <div id="lb"></div>
+</div>
+
+<div id="game">
+    <div id="category">ожидание...</div>
+    <div id="word"></div>
+</div>
+
+<script>
+const WS = "ws://127.0.0.1:4455/";
+
+let ws;
+let word="", category="";
+let guessed=[];
+let scores={};
+
+const WORDS = [
+ ["ВОЛК","Животное: Лес"],
+ ["ЛЕОПАРД","Животное: Хищник"],
+ ["ЖИРАФ","Животное: Саванна"],
+ ["СЛОН","Животное: Африка"],
+ ["ТИГР","Животное: Хищник"]
+];
+
+/* AUDIO (no files needed) */
+function beep(freq=500,time=0.08){
+ const a=new AudioContext();
+ const o=a.createOscillator();
+ const g=a.createGain();
+ o.frequency.value=freq;
+ o.connect(g);g.connect(a.destination);
+ o.start();
+ g.gain.exponentialRampToValueAtTime(0.0001,a.currentTime+time);
+ setTimeout(()=>a.close(),200);
+}
+
+function connect(){
+ ws=new WebSocket(WS);
+
+ ws.onopen=()=>startRound();
+
+ ws.onmessage=(m)=>{
+  try{
+   let d=JSON.parse(m.data);
+   if(d.event==="chat"){
+    handle(d.user,d.message);
+   }
+  }catch(e){}
+ };
+
+ ws.onclose=()=>setTimeout(connect,2000);
+}
+
+function startRound(){
+ let w=WORDS[Math.floor(Math.random()*WORDS.length)];
+ word=w[0];
+ category=w[1];
+ guessed=[];
+
+ document.getElementById("category").innerText=category;
+ render();
+}
+
+function render(){
+ let d=document.getElementById("word");
+ d.innerHTML="";
+
+ for(let c of word){
+  let el=document.createElement("div");
+  el.className="letter";
+
+  if(!guessed.includes(c)){
+   el.classList.add("hidden");
+   el.innerText="?";
+  }else{
+   el.innerText=c;
   }
 
-  players[username] = {
-    name: username,
-    role,
-    damage: 0
-  };
-
-  const icons = {
-    warrior: "⚔️",
-    mage: "🔮",
-    rogue: "🗡",
-    tank: "🛡",
-    heal: "✨"
-  };
-
-  const el =
-    document.createElement("div");
-
-  el.className =
-    `raider ${role}`;
-
-  el.style.opacity = 0;
-  el.style.transform =
-    "translateX(-60px)";
-
-  el.textContent =
-    `${icons[role]} ${username}`;
-
-  raidMembers.appendChild(el);
-
-  el.animate([
-    {
-      opacity: 0,
-      transform:
-        "translateX(-60px)"
-    },
-    {
-      opacity: 1,
-      transform:
-        "translateX(0)"
-    }
-  ], {
-    duration: 500,
-    fill: "forwards"
-  });
-
-  addLog(
-    `${username} joined raid`
-  );
+  d.appendChild(el);
+ }
 }
 
-/* -----------------------
-   ATTACK
------------------------- */
-
-function attack(
-  username,
-  multiplier = 1
-) {
-  const player =
-    players[username];
-
-  if (!player) return;
-
-  const stats =
-    classStats[player.role];
-
-  const crit =
-    Math.random() <
-    stats.critChance;
-
-  let damage =
-    Math.floor(
-      (
-        Math.random()
-        * (
-          stats.max -
-          stats.min
-        ) +
-        stats.min
-      ) * multiplier
-    );
-
-  if (crit) {
-    damage *= 2;
-  }
-
-  if (boss.enraged) {
-    damage =
-      Math.floor(
-        damage * 0.8
-      );
-  }
-
-  boss.hp -= damage;
-
-  if (boss.hp < 0) {
-    boss.hp = 0;
-  }
-
-  player.damage += damage;
-
-  spawnDamage(
-    damage,
-    crit,
-    multiplier > 2
-  );
-
-  addLog(
-    crit
-      ? `💥 ${username}
-crit ${damage}`
-      : `${username}
-hits ${damage}`,
-    crit ? "crit" : ""
-  );
-
-  updateHpBar();
-  updateLeaderboard();
+function popXP(x,y,text){
+ let p=document.createElement("div");
+ p.className="xp";
+ p.innerText=text;
+ p.style.left=x+"px";
+ p.style.top=y+"px";
+ document.body.appendChild(p);
+ setTimeout(()=>p.remove(),1000);
 }
 
-/* -----------------------
-   HEAL
------------------------- */
-
-function castHeal(
-  username
-) {
-  const amount =
-    Math.floor(
-      Math.random()
-      * 1000 + 500
-    );
-
-  addLog(
-    `✨ ${username}
-heals raid +${amount}`,
-    "heal"
-  );
+function addScore(u,v){
+ scores[u]=(scores[u]||0)+v;
+ updateLB();
 }
 
-/* -----------------------
-   COMMANDS
------------------------- */
+function updateLB(){
+ let arr=Object.entries(scores)
+ .sort((a,b)=>b[1]-a[1])
+ .slice(0,10);
 
-function useCommand(
-  username,
-  command
-) {
+ document.getElementById("lb").innerHTML=
+ arr.map((x,i)=>
+ `${i+1}. ${x[0]} - ${x[1]}`
+ ).join("<br>");
+}
 
-  switch(command) {
+function handle(user,msg){
+ msg=msg.toUpperCase();
 
-    case "!warrior":
-      joinRaid(
-        username,
-        "warrior"
-      );
-      attack(username);
-      break;
+ if(msg.startsWith("!Б ")){
+  let l=msg.replace("!Б ","")[0];
 
-    case "!mage":
-      joinRaid(
-        username,
-        "mage"
-      );
-      attack(username);
-      break;
+  if(word.includes(l)&&!guessed.includes(l)){
+   guessed.push(l);
+   addScore(user,10);
+   beep(700);
 
-    case "!rogue":
-      joinRaid(
-        username,
-        "rogue"
-      );
-      attack(username);
-      break;
-
-    case "!tank":
-      joinRaid(
-        username,
-        "tank"
-      );
-      attack(username);
-      break;
-
-    case "!heal":
-      joinRaid(
-        username,
-        "heal"
-      );
-      castHeal(username);
-      break;
-
-    case "!ult":
-      attack(
-        username,
-        4
-      );
-      break;
+   popXP(200,300,"+10 XP");
+   render();
   }
+ }
+
+ if(msg.startsWith("!СЛОВО ")){
+  let w=msg.replace("!СЛОВО ","");
+
+  if(w===word){
+   guessed=word.split("");
+   addScore(user,50);
+
+   beep(1000,0.2);
+
+   document.getElementById("game")
+   .classList.add("shake");
+
+   setTimeout(()=>{
+    document.getElementById("game")
+    .classList.remove("shake");
+   },500);
+
+   setTimeout(startRound,2000);
+   render();
+  }
+ }
 }
 
-window.useCommand =
-  useCommand;
+connect();
+</script>
 
-/* -----------------------
-   AUTO TEST
------------------------- */
-
-setInterval(() => {
-
-  const users = [
-    "Mike",
-    "Anna",
-    "Shadow",
-    "Fox",
-    "Titan"
-  ];
-
-  const commands = [
-    "!warrior",
-    "!mage",
-    "!rogue",
-    "!tank",
-    "!ult"
-  ];
-
-  const user =
-    users[
-      Math.floor(
-        Math.random()
-        * users.length
-      )
-    ];
-
-  const cmd =
-    commands[
-      Math.floor(
-        Math.random()
-        * commands.length
-      )
-    ];
-
-  useCommand(
-    user,
-    cmd
-  );
-
-}, 1800);
-
-updateHpBar();
+</body>
+</html>
