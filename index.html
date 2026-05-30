@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>OBS Game - YouTube Live</title>
+<title>OBS Game - Clean YouTube Version</title>
 <style>
 body {
     margin:0;
@@ -16,7 +16,7 @@ body {
     position: relative;
 }
 
-/* ЛЕВАЯ ПАНЕЛЬ: ДЛИННЫЙ ТОП-10 */
+/* ЛЕВАЯ ПАНЕЛЬ: ТОП-10 */
 #leaderboard {
     position: absolute;
     left: 40px;
@@ -93,6 +93,7 @@ body {
     gap: 14px;
     margin-bottom: 35px;
     flex-wrap: wrap;
+    min-height: 75px;
 }
 
 .letter {
@@ -172,7 +173,7 @@ body {
 </div>
 
 <div id="game">
-    <div id="category">Загрузка...</div>
+    <div id="category">Загрузка раунда...</div>
     <div id="word"></div>
 </div>
 
@@ -197,6 +198,7 @@ let guessed = [];
 let scores = {};
 let category = "";
 
+// 🦁 БАЗА ЖИВОТНЫХ С ПОДСКАЗКАМИ
 const WORDS = [
     ["ЖИРАФ", "Животное: Саванна"], ["ЛЕОПАРД", "Животное: Хищник"], ["МЕДВЕДЬ", "Животное: Лес"], ["ОБЕЗЬЯНА", "Животное: Джунгли"], ["КЕНГУРУ", "Животное: Австралия"],
     ["СЛОН", "Животное: Саванна"], ["ТИГР", "Животное: Хищник"], ["ПАНДА", "Животное: Азия"], ["ВОЛК", "Животное: Хищник"], ["ЛИСА", "Животное: Лес"],
@@ -204,9 +206,9 @@ const WORDS = [
 ];
 
 function startRound() {
-    let w = WORDS[Math.floor(Math.random()*WORDS.length)];
-    word = w[0];
-    category = w[1];
+    let w = WORDS[Math.floor(Math.random() * WORDS.length)];
+    word = w[0];      // Исправлено: берем само слово
+    category = w[1];  // Исправлено: берем подсказку
     guessed = [];
 
     document.getElementById("category").innerText = category;
@@ -235,7 +237,8 @@ function handleChat(user, msg) {
     msg = msg.toUpperCase();
 
     if (msg.startsWith("!Б ")) {
-        let l = msg.replace("!Б ","").trim()[0];
+        let l = msg.replace("!Б ","").trim().substring(0, 1);
+        if (!l) return;
 
         if (word.includes(l) && !guessed.includes(l)) {
             guessed.push(l);
@@ -309,7 +312,7 @@ function updateLB() {
 
 function startChatListener() {
     if (!YOUTUBE_VIDEO_ID || YOUTUBE_VIDEO_ID === "") {
-        console.log("Режим ожидания стрима. Вставьте ID для чтения чата.");
+        console.log("Режим теста. Вставьте ID трансляции для чтения чата.");
         return;
     }
     try {
