@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Игра для OBS - Исправленная</title>
+    <title>Интерфейс игры</title>
     <style>
         body {
             margin: 0;
@@ -16,6 +16,8 @@
             box-sizing: border-box;
             position: relative;
         }
+
+        /* ЗОНА СЛЕВА: ТОП ИГРОКОВ */
         #leaderboard {
             position: absolute;
             left: 40px;
@@ -29,6 +31,7 @@
             box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
             box-sizing: border-box;
         }
+
         .leaderboard-title {
             color: #ff4757;
             font-weight: bold;
@@ -37,26 +40,10 @@
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 2px;
+            text-shadow: 2px 2px 4px #000;
         }
-        #leaderboard-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .score-entry {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 12px 18px;
-            border-radius: 12px;
-            border-left: 5px solid #ff4757;
-            font-size: 20px;
-        }
-        .score-entry span:last-child {
-            color: #00ffcc;
-            font-weight: bold;
-        }
+
+        /* ЗОНА ПО ЦЕНТРУ: ЖЕЛТАЯ РАМКА ДЛЯ ИГРЫ */
         #game-container {
             position: absolute;
             left: 50%;
@@ -70,48 +57,10 @@
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.85);
             width: 960px; 
             box-sizing: border-box;
+            height: 350px;
         }
-        #category {
-            font-size: 38px; 
-            color: #ffcc00;
-            margin-bottom: 30px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        #word-display {
-            display: flex;
-            justify-content: center;
-            gap: 14px;
-            margin-bottom: 35px;
-            flex-wrap: wrap;
-        }
-        .letter-box {
-            width: 65px;
-            height: 75px;
-            background: #ffffff;
-            color: #111111;
-            font-size: 46px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-            box-shadow: 0 6px 0 #b3b3b3;
-            text-transform: uppercase;
-        }
-        .hidden-letter {
-            background: #252836 !important;
-            color: #252836 !important;
-            border: 2px solid #45495e;
-            box-shadow: inset 0 0 10px #000;
-        }
-        #instructions {
-            font-size: 20px;
-            color: #00ffcc;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 12px 20px;
-            border-radius: 10px;
-        }
+
+        /* ЗОНА СПРАВА: ПРАВИЛА ИГРЫ */
         #rules-container {
             position: absolute;
             right: 40px;
@@ -122,9 +71,10 @@
             padding: 40px 25px;
             border-radius: 25px;
             border: 4px solid #00f0ff;
-            box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 35px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 240, 255, 0.2);
             box-sizing: border-box;
         }
+
         .rules-title {
             color: #00f0ff;
             font-weight: bold;
@@ -133,7 +83,9 @@
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.6), 2px 2px 4px #000;
         }
+
         .rule-item {
             background: rgba(255, 255, 255, 0.04);
             padding: 24px;
@@ -142,7 +94,9 @@
             border-left: 6px solid #00f0ff;
             font-size: 24px;
             line-height: 1.6;
+            text-shadow: 1px 1px 2px #000;
         }
+        
         .rule-cmd {
             color: #ffcc00;
             font-weight: bold;
@@ -159,106 +113,18 @@
 
     <div id="leaderboard">
         <div class="leaderboard-title">🏆 ТОП ИГРОКОВ</div>
-        <div id="leaderboard-list"></div>
     </div>
 
     <div id="game-container">
-        <div id="category">Загрузка...</div>
-        <div id="word-display"></div>
-        <div id="instructions">💬 Ждем команды зрителей из чата!</div>
+        <!-- Рамка пустая, сюда мы наложим текст -->
     </div>
 
     <div id="rules-container">
         <div class="rules-title">📜 ПРАВИЛА</div>
-        <div class="rule-item">В чате загадано секретное животное. Открой его быстрее всех!</div>
+        <div class="rule-item">В чате загадано животное. Открой его быстрее всех!</div>
         <div class="rule-item">Угадать <b>БУКВУ</b>: <br><span class="rule-cmd">!б [буква]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !б а</small></div>
         <div class="rule-item">Угадать <b>ВСЁ СЛОВО</b>: <br><span class="rule-cmd">!слово [слово]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !слово жираф</small></div>
     </div>
 
-    <script src="https://jsdelivr.net"></script>
-
-    <script>
-        // СЮДА ВСТАВЛЯЙТЕ ID ЖИВОГО СТРИМА ПЕРЕД НАЧАЛОМ
-        const YOUTUBE_VIDEO_ID = ""; 
-
-        const WORDS_DATABASE = [
-            { word: "ЖИРАФ", category: "Животное: Саванна" }, { word: "ЛЕОПАРД", category: "Животное: Хищник" }, { word: "МЕДВЕДЬ", category: "Животное: Лес" }, { word: "ОБЕЗЬЯНА", category: "Животное: Джунгли" }, { word: "КЕНГУРУ", category: "Животное: Австралия" },
-            { word: "СЛОН", category: "Животное: Саванна" }, { word: "ТИГР", category: "Животное: Хищник" }, { word: "ПАНДА", category: "Животное: Азия" }, { word: "ВОЛК", category: "Животное: Хищник" }, { word: "ЛИСА", category: "Животное: Лес" },
-            { word: "ЗАЯЦ", category: "Животное: Лес" }, { word: "БЕГЕМОТ", category: "Животное: Африка" }, { word: "НОСОРОГ", category: "Животное: Африка" }, { word: "ЗЕБРА", category: "Животное: Саванна" }, { word: "ГЕПАРД", category: "Животное: Скорость" }
-        ];
-
-        let currentWordObj = {};
-        let guessedLetters = [];
-        let scores = {};
-
-        function initNewRound() {
-            currentWordObj = WORDS_DATABASE[Math.floor(Math.random() * WORDS_DATABASE.length)];
-            guessedLetters = [];
-            document.getElementById("category").innerText = "Категория: " + currentWordObj.category;
-            renderWord();
-            updateLeaderboard();
-        }
-
-        function renderWord() {
-            const container = document.getElementById("word-display");
-            container.innerHTML = "";
-            for (let char of currentWordObj.word) {
-                const box = document.createElement("div");
-                box.classList.add("letter-box");
-                if (guessedLetters.includes(char)) {
-                    box.innerText = char;
-                } else {
-                    box.classList.add("hidden-letter");
-                    box.innerText = "?";
-                }
-                container.appendChild(box);
-            }
-        }
-
-        function processGameMessage(user, msg) {
-            msg = msg.trim().toUpperCase();
-            if (msg.startsWith("!Б ")) {
-                let letter = msg.replace("!Б ", "").trim().substring(0, 1);
-                if (currentWordObj.word.includes(letter) && !guessedLetters.includes(letter)) {
-                    guessedLetters.push(letter);
-                    scores[user] = (scores[user] || 0) + 10;
-                    renderWord(); updateLeaderboard(); checkWin();
-                }
-            }
-            if (msg.startsWith("!СЛОВО ")) {
-                let guessedWord = msg.replace("!СЛОВО ", "").trim();
-                if (guessedWord === currentWordObj.word) {
-                    scores[user] = (scores[user] || 0) + 50;
-                    guessedLetters = currentWordObj.word.split("");
-                    renderWord(); updateLeaderboard();
-                    document.getElementById("instructions").innerText = `🎉 ${user} угадал слово!`;
-                    setTimeout(() => { initNewRound(); document.getElementById("instructions").innerText = "💬 Ждем команды зрителей из чата!"; }, 4000);
-                }
-            }
-        }
-
-        function checkWin() {
-            let isWin = true;
-            for (let char of currentWordObj.word) {
-                if (!guessedLetters.includes(char)) isWin = false;
-            }
-            if (isWin) {
-                document.getElementById("instructions").innerText = "🎉 Слово разгадано! Новый раунд...";
-                setTimeout(() => { initNewRound(); document.getElementById("instructions").innerText = "💬 Ждем команды зрителей из чата!"; }, 4000);
-            }
-        }
-
-        function updateLeaderboard() {
-            const list = document.getElementById("leaderboard-list");
-            list.innerHTML = "";
-            let sorted = Object.entries(scores).sort((a, b) => b - a).slice(0, 10); 
-            for (let i = 1; i <= 10; i++) {
-                const entry = document.createElement("div");
-                entry.classList.add("score-entry");
-                if (sorted[i-1]) {
-                    entry.innerHTML = `<span>${i}. 👤 ${sorted[i-1][0]}</span><span>${sorted[i-1][1]} XP</span>`;
-                } else {
-                    entry.style.opacity = "0.3";
-                    entry.innerHTML = `<span>${i}. 👤 Свободно</span><span>0 XP</span>`;
-                }
-                list.appendChild(entry);
+</body>
+</html>
