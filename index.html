@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Игра для OBS - 3 Зоны</title>
+    <title>Игра для OBS - 3 Зоны Исправленная</title>
     <style>
         body {
             margin: 0;
@@ -23,7 +23,7 @@
             left: 40px;
             top: 40px;
             width: 380px;
-            height: 1000px; /* Вытянут почти на всю высоту */
+            height: 1000px;
             background: rgba(15, 16, 28, 0.96);
             padding: 30px 20px;
             border-radius: 25px;
@@ -73,11 +73,11 @@
             font-weight: bold;
         }
 
-        /* 2. ЗОНА ПО ЦЕНТРУ: ИГРОВОЕ ПОЛЕ (ОПУЩЕНО НИЖЕ) */
+        /* 2. ЗОНА ПО ЦЕНТРУ: ИГРОВОЕ ПОЛЕ */
         #game-container {
             position: absolute;
             left: 50%;
-            top: 55%; /* Сместили с 50% на 55%, чтобы опустить ниже */
+            top: 55%; /* Идеально опущено чуть ниже центра */
             transform: translate(-50%, -50%);
             text-align: center;
             background: rgba(15, 16, 28, 0.96);
@@ -187,14 +187,12 @@
     <!-- ЛЕВАЯ ПАНЕЛЬ: ТОП-10 -->
     <div id="leaderboard">
         <div class="leaderboard-title">🏆 ТОП ИГРОКОВ</div>
-        <div id="leaderboard-list">
-            <!-- Сюда добавляются игроки -->
-        </div>
+        <div id="leaderboard-list"></div>
     </div>
 
     <!-- ЦЕНТРАЛЬНАЯ ПАНЕЛЬ: ИГРА -->
     <div id="game-container">
-        <div id="category">Загрузка...</div>
+        <div id="category">Категория...</div>
         <div id="word-display"></div>
         <div id="instructions">💬 Пиши в чат команды ниже, чтобы играть!</div>
     </div>
@@ -312,3 +310,4 @@
                 if (!guessedLetters.includes(char)) isWin = false;
             }
             if (isWin) {
+                document.getElementById("instructions").innerText = "🎉 Слово разгадано! Новый раунд...";
