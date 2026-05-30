@@ -1,219 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>OBS Game</title>
+<style>
+body {
+    margin:0;
+    overflow:hidden;
+    background:transparent;
+    font-family:Arial Black;
+    color:white;
+}
+
+#game {
+    position:absolute;
+    left:50%;
+    top:55%;
+    transform:translate(-50%,-50%);
+    width:900px;
+    background:rgba(0,0,0,0.75);
+    padding:30px;
+    border-radius:20px;
+    text-align:center;
+    border:3px solid gold;
+}
+
+#category {
+    font-size:32px;
+    color:gold;
+    margin-bottom:20px;
+}
+
+#word {
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+}
+
+.letter {
+    width:60px;
+    height:70px;
+    background:white;
+    color:black;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:40px;
+    border-radius:10px;
+}
+
+.hidden {
+    background:#222;
+    color:#222;
+}
+
+#leaderboard {
+    position:absolute;
+    left:30px;
+    top:30px;
+    width:300px;
+    background:rgba(0,0,0,0.7);
+    padding:20px;
+    border-radius:15px;
+    border:2px solid red;
+}
+</style>
+</head>
+<body>
+
+<div id="leaderboard">
+    <b>🏆 TOP</b>
+    <div id="lb"></div>
+</div>
+
+<div id="game">
+    <div id="category">ожидание...</div>
+    <div id="word"></div>
+</div>
+
 <script>
-    const WORDS = [
-        { word: "ЖИРАФ", category: "Животное: Саванна" },
-        { word: "ЛЕОПАРД", category: "Животное: Хищник" },
-        { word: "МЕДВЕДЬ", category: "Животное: Лес" },
-        { word: "ОБЕЗЬЯНА", category: "Животное: Джунгли" },
-        { word: "КЕНГУРУ", category: "Животное: Австралия" },
-        { word: "СЛОН", category: "Животное: Саванна" },
-        { word: "ТИГР", category: "Животное: Хищник" },
-        { word: "ПАНДА", category: "Животное: Азия" },
-        { word: "ВОЛК", category: "Животное: Хищник" },
-        { word: "ЛИСА", category: "Животное: Лес" }
-    ];
+const WS_URL = "ws://127.0.0.1:4455/";
 
-    let guessed = [];
-    let scores = {};
-    let currentWord = "";
-    let currentCategory = "";
+let ws;
+let word = "";
+let guessed = [];
+let scores = {};
+let category = "";
 
-    function startRound() {
-        const random =
-            WORDS[Math.floor(Math.random() * WORDS.length)];
+const WORDS = [
+    ["ВОЛК","Животное: Лес"],
+    ["ЛЕОПАРД","Животное: Хищник"],
+    ["ЖИРАФ","Животное: Саванна"],
+    ["СЛОН","Животное: Африка"],
+    ["ТИГР","Животное: Хищник"]
+];
 
-        currentWord = random.word;
-        currentCategory = random.category;
-        guessed = [];
+function connect() {
+    ws = new WebSocket(WS_URL);
 
-        document.getElementById("category").innerText =
-            "Категория: " + currentCategory;
+    ws.onopen = () => {
+        console.log("connected");
+        startRound();
+    };
 
-        createBoxes();
-    }
+    ws.onmessage = (msg) => {
+        try {
+            let data = JSON.parse(msg.data);
 
-    function createBoxes() {
-        const container =
-            document.getElementById("word-display");
-
-        container.innerHTML = "";
-
-        for (let i = 0; i < currentWord.length; i++) {
-            const box = document.createElement("div");
-            box.className =
-                "letter-box hidden-letter";
-            box.innerText = "?";
-            container.appendChild(box);
-        }
-    }
-
-    function sendTestMessage() {
-        let val = document
-            .getElementById("test-input")
-            .value
-            .trim()
-            .toUpperCase();
-
-        document.getElementById("test-input").value = "";
-
-        if (!val) return;
-
-        processMessage("Зритель", val);
-    }
-
-    function processMessage(user, msg) {
-
-        // Угадать букву
-        if (msg.startsWith("!Б ")) {
-
-            let letter = msg
-                .replace("!Б ", "")
-                .trim()
-                .substring(0,1);
-
-            if (
-                currentWord.includes(letter) &&
-                !guessed.includes(letter)
-            ) {
-                guessed.push(letter);
-
-                scores[user] =
-                    (scores[user] || 0) + 10;
-
-                render();
-                updateLeaderboard();
-                checkWin();
+            // Streamer.bot trigger
+            if (data.event === "chat") {
+                handleChat(data.user, data.message);
             }
+        } catch(e){}
+    };
+
+    ws.onclose = () => setTimeout(connect, 2000);
+}
+
+function startRound() {
+    let w = WORDS[Math.floor(Math.random()*WORDS.length)];
+    word = w[0];
+    category = w[1];
+    guessed = [];
+
+    document.getElementById("category").innerText = category;
+    renderWord();
+}
+
+function renderWord() {
+    let div = document.getElementById("word");
+    div.innerHTML = "";
+
+    for (let c of word) {
+        let el = document.createElement("div");
+        el.className = "letter";
+
+        if (!guessed.includes(c)) {
+            el.classList.add("hidden");
+            el.innerText = "?";
+        } else {
+            el.innerText = c;
         }
 
-        // Угадать слово
-        if (msg.startsWith("!СЛОВО ")) {
+        div.appendChild(el);
+    }
+}
 
-            let guessedWord = msg
-                .replace("!СЛОВО ", "")
-                .trim();
+function handleChat(user, msg) {
+    msg = msg.toUpperCase();
 
-            if (guessedWord === currentWord) {
+    if (msg.startsWith("!Б ")) {
+        let l = msg.replace("!Б ","")[0];
 
-                guessed =
-                    currentWord.split("");
-
-                scores[user] =
-                    (scores[user] || 0) + 50;
-
-                render();
-                updateLeaderboard();
-
-                setTimeout(() => {
-                    alert(
-                        "🎉 " + user +
-                        " угадал слово: " +
-                        currentWord
-                    );
-
-                    startRound();
-                }, 300);
-            }
+        if (word.includes(l) && !guessed.includes(l)) {
+            guessed.push(l);
+            addScore(user, 10);
+            renderWord();
         }
     }
 
-    function render() {
+    if (msg.startsWith("!СЛОВО ")) {
+        let w = msg.replace("!СЛОВО ","");
 
-        const boxes =
-            document.querySelectorAll(".letter-box");
-
-        for (let i = 0; i < currentWord.length; i++) {
-
-            if (
-                guessed.includes(currentWord[i])
-            ) {
-                boxes[i].innerText =
-                    currentWord[i];
-
-                boxes[i]
-                    .classList
-                    .remove("hidden-letter");
-            }
+        if (w === word) {
+            guessed = word.split("");
+            addScore(user, 50);
+            renderWord();
+            setTimeout(startRound, 2000);
         }
     }
+}
 
-    function checkWin() {
+function addScore(user, pts) {
+    scores[user] = (scores[user]||0)+pts;
+    updateLB();
+}
 
-        const opened =
-            currentWord
-            .split("")
-            .every(letter =>
-                guessed.includes(letter)
-            );
+function updateLB() {
+    let arr = Object.entries(scores).sort((a,b)=>b[1]-a[1]).slice(0,10);
 
-        if (opened) {
+    document.getElementById("lb").innerHTML =
+        arr.map((x,i)=>`${i+1}. ${x[0]} - ${x[1]} XP`).join("<br>");
+}
 
-            setTimeout(() => {
-                alert(
-                    "🎉 Слово разгадано: " +
-                    currentWord
-                );
-
-                startRound();
-
-            }, 300);
-        }
-    }
-
-    function updateLeaderboard() {
-
-        const list =
-            document.getElementById(
-                "leaderboard-list"
-            );
-
-        const sorted =
-            Object.entries(scores)
-            .sort((a,b)=>b[1]-a[1])
-            .slice(0,10);
-
-        list.innerHTML = "";
-
-        for (let i = 0; i < 10; i++) {
-
-            if (sorted[i]) {
-
-                list.innerHTML += `
-                    <div class="score-entry">
-                        <span>
-                            ${i+1}. 👤
-                            ${sorted[i][0]}
-                        </span>
-                        <span>
-                            ${sorted[i][1]} XP
-                        </span>
-                    </div>
-                `;
-            } else {
-
-                list.innerHTML += `
-                    <div class="score-entry"
-                         style="opacity:0.3">
-                        <span>
-                            ${i+1}. 👤 Свободно
-                        </span>
-                        <span>0 XP</span>
-                    </div>
-                `;
-            }
-        }
-    }
-
-    // ENTER в тестовом поле
-    document
-        .getElementById("test-input")
-        .addEventListener("keypress",
-        function(e) {
-            if (e.key === "Enter") {
-                sendTestMessage();
-            }
-        });
-
-    // запуск
-    startRound();
-    updateLeaderboard();
+connect();
 </script>
+
+</body>
+</html>
