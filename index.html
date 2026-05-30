@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>OBS Game - Ultimate Fix</title>
+<title>OBS Game - LIVE NOW</title>
 <style>
 body {
     margin:0;
@@ -178,7 +178,7 @@ body {
 <script src="https://jsdelivr.net"></script>
 
 <script>
-// ВАШ АКТУАЛЬНЫЙ ID СТРИМА
+// ВАШ ТЕКУЩИЙ ID СТРИМА
 const YOUTUBE_VIDEO_ID = "GP5fWDnvEbg"; 
 
 let word = "";
@@ -187,15 +187,27 @@ let scores = {};
 let category = "";
 
 const WORDS = [
-    ["ЖИРАФ", "Животное: Саванна"], ["ЛЕОПАРД", "Животное: Хищник"], ["МЕДВЕДЬ", "Животное: Лес"], ["ОБЕЗЬЯНА", "Животное: Джунгли"], ["КЕНГУРУ", "Животное: Австралия"],
-    ["СЛОН", "Животное: Саванна"], ["ТИГР", "Животное: Хищник"], ["ПАНДА", "Животное: Азия"], ["ВОЛК", "Животное: Хищник"], ["ЛИСА", "Животное: Лес"],
-    ["ЗАЯЦ", "Животное: Лес"], ["БЕГЕМОТ", "Животное: Африка"], ["НОСОРОГ", "Животное: Африка"], ["ЗЕБРА", "Животное: Саванна"], ["ГЕПАРД", "Животное: Скорость"]
+    ["ЖИРАФ", "Животное: Саванна"], 
+    ["ЛЕОПАРД", "Животное: Хищник"], 
+    ["МЕДВЕДЬ", "Животное: Лес"], 
+    ["ОБЕЗЬЯНА", "Животное: Джунгли"], 
+    ["КЕНГУРУ", "Животное: Австралия"],
+    ["СЛОН", "Животное: Саванна"], 
+    ["ТИГР", "Животное: Хищник"], 
+    ["ПАНДА", "Животное: Азия"], 
+    ["ВОЛК", "Животное: Хищник"], 
+    ["ЛИСА", "Животное: Лес"],
+    ["ЗАЯЦ", "Животное: Лес"], 
+    ["БЕГЕМОТ", "Животное: Африка"], 
+    ["НОСОРОГ", "Животное: Африка"], 
+    ["ЗЕБРА", "Животное: Саванна"], 
+    ["ГЕПАРД", "Животное: Скорость"]
 ];
 
 function startRound() {
     let w = WORDS[Math.floor(Math.random() * WORDS.length)];
-    word = w[0];      // ИСПРАВЛЕНО: берем строго само слово
-    category = w[1];  // ИСПРАВЛЕНО: берем строго подсказку
+    word = w[0];      
+    category = w[1];  
     guessed = [];
 
     document.getElementById("category").innerText = category;
@@ -205,11 +217,9 @@ function startRound() {
 function renderWord() {
     let div = document.getElementById("word");
     div.innerHTML = "";
-
     for (let i = 0; i < word.length; i++) {
         let el = document.createElement("div");
         el.className = "letter";
-
         if (!guessed.includes(word[i])) {
             el.classList.add("hidden");
             el.innerText = "?";
@@ -237,7 +247,6 @@ function handleChat(user, msg) {
 
     if (msg.toUpperCase().trim().startsWith("!СЛОВО ")) {
         let w = msg.toUpperCase().trim().replace("!СЛОВО ", "").trim();
-
         if (w === word) {
             guessed = word.split("");
             addScore(user, 50);
@@ -286,7 +295,7 @@ function updateLB() {
     arr.forEach((x, i) => {
         let entry = document.createElement("div");
         entry.className = "score-entry";
-        entry.innerHTML = `<span>${i+1}. 👤 ${x[0]}</span><span>${x[1]} XP</span>`; // ИСПРАВЛЕНО: раздельный вывод имени и очков
+        entry.innerHTML = `<span>${i+1}. 👤 ${x[0]}</span><span>${x[1]} XP</span>`;
         list.appendChild(entry);
     });
 
@@ -316,10 +325,16 @@ function startChatListener() {
     } catch (e) { console.error(e); }
 }
 
+// Резервное считывание сообщений из встроенного окна чата OBS
+window.addEventListener("message", function(event) {
+    if (event.data && event.data.user && event.data.text) {
+        handleChat(event.data.user, event.data.text);
+    }
+});
+
 updateLeaderboardSlots();
 startRound();
 startChatListener();
 </script>
-
 </body>
 </html>
