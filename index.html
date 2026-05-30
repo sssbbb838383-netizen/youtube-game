@@ -157,17 +157,20 @@
 </head>
 <body>
 
+    <!-- ЛЕВАЯ ПАНЕЛЬ -->
     <div id="leaderboard">
         <div class="leaderboard-title">🏆 ТОП ИГРОКОВ</div>
         <div id="leaderboard-list"></div>
     </div>
 
+    <!-- ЦЕНТРАЛЬНАЯ ПАНЕЛЬ -->
     <div id="game-container">
         <div id="category">Категория...</div>
         <div id="word-display"></div>
         <div id="instructions">💬 Ждем команды зрителей из чата!</div>
     </div>
 
+    <!-- ПРАВАЯ ПАНЕЛЬ -->
     <div id="rules-container">
         <div class="rules-title">📜 ПРАВИЛА</div>
         <div class="rule-item">В чате загадано секретное животное. Открой его быстрее всех!</div>
@@ -202,10 +205,9 @@
         function initNewRound() {
             currentWordObj = WORDS_DATABASE[Math.floor(Math.random() * WORDS_DATABASE.length)];
             guessedLetters = [];
-            document.getElementById("category").innerText = `Категория: ${currentWordObj.category}`;
+            document.getElementById("category").innerText = "Категория: " + currentWordObj.category;
             renderWord();
             updateLeaderboard();
         }
 
         function renderWord() {
-            const container = document.getElementById("word-display");
