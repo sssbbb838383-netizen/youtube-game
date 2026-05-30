@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>OBS Game - Clean YouTube Version</title>
+<title>OBS Game - Ultimate Bridge Version</title>
 <style>
 body {
     margin:0;
@@ -15,8 +15,6 @@ body {
     box-sizing: border-box;
     position: relative;
 }
-
-/* ЛЕВАЯ ПАНЕЛЬ: ТОП-10 */
 #leaderboard {
     position: absolute;
     left: 40px;
@@ -30,7 +28,6 @@ body {
     box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
     box-sizing: border-box;
 }
-
 .leaderboard-title {
     color: #ff4757;
     font-weight: bold;
@@ -40,13 +37,11 @@ body {
     text-transform: uppercase;
     letter-spacing: 2px;
 }
-
 #lb {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
-
 .score-entry {
     display: flex;
     justify-content: space-between;
@@ -57,13 +52,10 @@ body {
     border-left: 5px solid #ff4757;
     font-size: 20px;
 }
-
 .score-entry span:last-child {
     color: #00ffcc;
     font-weight: bold;
 }
-
-/* ЦЕНТРАЛЬНАЯ ПАНЕЛЬ: ИГРА */
 #game {
     position: absolute;
     left: 50%;
@@ -78,7 +70,6 @@ body {
     width: 960px; 
     box-sizing: border-box;
 }
-
 #category {
     font-size: 38px; 
     color: #ffcc00;
@@ -86,7 +77,6 @@ body {
     text-transform: uppercase;
     letter-spacing: 2px;
 }
-
 #word {
     display: flex;
     justify-content: center;
@@ -95,7 +85,6 @@ body {
     flex-wrap: wrap;
     min-height: 75px;
 }
-
 .letter {
     width: 65px;
     height: 75px;
@@ -110,15 +99,12 @@ body {
     box-shadow: 0 6px 0 #b3b3b3;
     text-transform: uppercase;
 }
-
 .hidden {
     background: #252836 !important;
     color: #252836 !important;
     border: 2px solid #45495e;
     box-shadow: inset 0 0 10px #000;
 }
-
-/* ПРАВАЯ ПАНЕЛЬ: ПРАВИЛА */
 #rules-container {
     position: absolute;
     right: 40px;
@@ -132,7 +118,6 @@ body {
     box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
     box-sizing: border-box;
 }
-
 .rules-title {
     color: #00f0ff;
     font-weight: bold;
@@ -142,7 +127,6 @@ body {
     text-transform: uppercase;
     letter-spacing: 3px;
 }
-
 .rule-item {
     background: rgba(255, 255, 255, 0.04);
     padding: 24px;
@@ -152,7 +136,6 @@ body {
     font-size: 24px;
     line-height: 1.6;
 }
-
 .rule-cmd {
     color: #ffcc00;
     font-weight: bold;
@@ -173,7 +156,7 @@ body {
 </div>
 
 <div id="game">
-    <div id="category">Загрузка раунда...</div>
+    <div id="category">Загрузка...</div>
     <div id="word"></div>
 </div>
 
@@ -184,21 +167,12 @@ body {
     <div class="rule-item">Угадать <b>ВСЁ СЛОВО</b>: <br><span class="rule-cmd">!слово [слово]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !слово жираф</small></div>
 </div>
 
-<!-- Официальная библиотека прямого чтения чата YouTube -->
-<script src="https://jsdelivr.net"></script>
-
 <script>
-// =========================================================================
-// ⚙️ СВЯЗЬ С ВАШИМ СТРИМОМ (ВСТАВЬТЕ СЮДА ID ВАШЕЙ ТРАНСЛЯЦИИ ПОСЛЕ НАЧАЛА СТРИМА)
-// =========================================================================
-const YOUTUBE_VIDEO_ID = "GP5fWDnvEbg"; 
-
 let word = "";
 let guessed = [];
 let scores = {};
 let category = "";
 
-// 🦁 БАЗА ЖИВОТНЫХ С ПОДСКАЗКАМИ
 const WORDS = [
     ["ЖИРАФ", "Животное: Саванна"], ["ЛЕОПАРД", "Животное: Хищник"], ["МЕДВЕДЬ", "Животное: Лес"], ["ОБЕЗЬЯНА", "Животное: Джунгли"], ["КЕНГУРУ", "Животное: Австралия"],
     ["СЛОН", "Животное: Саванна"], ["ТИГР", "Животное: Хищник"], ["ПАНДА", "Животное: Азия"], ["ВОЛК", "Животное: Хищник"], ["ЛИСА", "Животное: Лес"],
@@ -207,132 +181,78 @@ const WORDS = [
 
 function startRound() {
     let w = WORDS[Math.floor(Math.random() * WORDS.length)];
-    word = w[0];      // Исправлено: берем само слово
-    category = w[1];  // Исправлено: берем подсказку
+    word = w[0];
+    category = w[1];
     guessed = [];
-
     document.getElementById("category").innerText = category;
     renderWord();
 }
 
 function renderWord() {
-    let div = document.getElementById("word");
-    div.innerHTML = "";
-
+    let div = document.getElementById("word"); div.innerHTML = "";
     for (let c of word) {
-        let el = document.createElement("div");
-        el.className = "letter";
-
-        if (!guessed.includes(c)) {
-            el.classList.add("hidden");
-            el.innerText = "?";
-        } else {
-            el.innerText = c;
-        }
+        let el = document.createElement("div"); el.className = "letter";
+        if (!guessed.includes(c)) { el.classList.add("hidden"); el.innerText = "?"; } 
+        else { el.innerText = c; }
         div.appendChild(el);
     }
 }
 
 function handleChat(user, msg) {
-    msg = msg.toUpperCase();
-
+    msg = msg.toUpperCase().trim();
     if (msg.startsWith("!Б ")) {
         let l = msg.replace("!Б ","").trim().substring(0, 1);
-        if (!l) return;
-
         if (word.includes(l) && !guessed.includes(l)) {
-            guessed.push(l);
-            addScore(user, 10);
-            renderWord();
-            checkWin();
+            guessed.push(l); addScore(user, 10); renderWord(); checkWin();
         }
     }
-
     if (msg.startsWith("!СЛОВО ")) {
         let w = msg.replace("!СЛОВО ","").trim();
-
         if (w === word) {
-            guessed = word.split("");
-            addScore(user, 50);
-            renderWord();
-            setTimeout(startRound, 4000);
+            guessed = word.split(""); addScore(user, 50); renderWord(); setTimeout(startRound, 4000);
         }
     }
 }
 
 function checkWin() {
-    let isWin = true;
-    for (let c of word) {
-        if (!guessed.includes(c)) isWin = false;
-    }
-    if (isWin) {
-        setTimeout(startRound, 4000);
-    }
+    let isWin = true; for (let c of word) { if (!guessed.includes(c)) isWin = false; }
+    if (isWin) setTimeout(startRound, 4000);
 }
 
-function addScore(user, pts) {
-    scores[user] = (scores[user]||0)+pts;
-    updateLB();
-}
+function addScore(user, pts) { scores[user] = (scores[user]||0)+pts; updateLB(); }
 
 function updateLeaderboardSlots() {
-    let list = document.getElementById("lb");
-    list.innerHTML = "";
+    let list = document.getElementById("lb"); list.innerHTML = "";
     for (let i = 1; i <= 10; i++) {
-        let entry = document.createElement("div");
-        entry.className = "score-entry";
-        entry.style.opacity = "0.3";
-        entry.innerHTML = `<span>${i}. 👤 Свободно</span><span>0 XP</span>`;
-        list.appendChild(entry);
+        let entry = document.createElement("div"); entry.className = "score-entry"; entry.style.opacity = "0.3";
+        entry.innerHTML = `<span>${i}. 👤 Свободно</span><span>0 XP</span>`; list.appendChild(entry);
     }
 }
 
 function updateLB() {
-    let arr = Object.entries(scores).sort((a,b)=>b[1]-a[1]).slice(0,10);
-    let list = document.getElementById("lb");
-    list.innerHTML = "";
-
+    let arr = Object.entries(scores).sort((a,b)=>b-a).slice(0,10);
+    let list = document.getElementById("lb"); list.innerHTML = "";
     arr.forEach((x, i) => {
-        let entry = document.createElement("div");
-        entry.className = "score-entry";
-        entry.innerHTML = `<span>${i+1}. 👤 ${x[0]}</span><span>${x[1]} XP</span>`;
-        list.appendChild(entry);
+        let entry = document.createElement("div"); entry.className = "score-entry";
+        entry.innerHTML = `<span>${i+1}. 👤 ${x[0]}</span><span>${x[1]} XP</span>`; list.appendChild(entry);
     });
-
     if (arr.length < 10) {
         for (let i = arr.length + 1; i <= 10; i++) {
-            let entry = document.createElement("div");
-            entry.className = "score-entry";
-            entry.style.opacity = "0.3";
-            entry.innerHTML = `<span>${i}. 👤 Свободно</span><span>0 XP</span>`;
-            list.appendChild(entry);
+            let entry = document.createElement("div"); entry.className = "score-entry"; entry.style.opacity = "0.3";
+            entry.innerHTML = `<span>${i}. 👤 Свободно</span><span>0 XP</span>`; list.appendChild(entry);
         }
     }
 }
 
-function startChatListener() {
-    if (!YOUTUBE_VIDEO_ID || YOUTUBE_VIDEO_ID === "") {
-        console.log("Режим теста. Вставьте ID трансляции для чтения чата.");
-        return;
+// 📡 ПЕРЕХВАТ ИЗ ВСТРОЕННОГО ОКНА ОБС
+window.addEventListener("message", function(event) {
+    if (event.data && event.data.user && event.data.text) {
+        handleChat(event.data.user, event.data.text);
     }
-    try {
-        const liveChat = new YouTubeChat.LiveChat({ liveId: YOUTUBE_VIDEO_ID });
-        liveChat.on("chat", (chatItem) => {
-            if (chatItem && chatItem.author && chatItem.message) {
-                const user = chatItem.author.name;
-                const message = chatItem.message.map(m => m.text || "").join("");
-                handleChat(user, message);
-            }
-        });
-        liveChat.start().catch(err => console.error(err));
-    } catch (e) { console.error(e); }
-}
+});
 
-// Запуск игры происходит мгновенно
 updateLeaderboardSlots();
 startRound();
-startChatListener();
 </script>
-
 </body>
 </html>
