@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>OBS Game - Professional WebSocket Edition</title>
+<title>OBS Game - Streamer.bot Official</title>
 <style>
 body {
     margin:0;
@@ -165,7 +165,7 @@ body {
 <div id="game">
     <div id="category">Ожидание подключения...</div>
     <div id="word"></div>
-    <div id="instructions">💬 Пиши в чат команды ниже, чтобы играть!</div>
+    <div id="instructions">💬 Включите WebSocket Server в Streamer.bot на порту 4455!</div>
 </div>
 
 <div id="rules-container">
@@ -176,8 +176,8 @@ body {
 </div>
 
 <script>
-// Порт 8085 вашего запущенного Streamer.bot
-const WS_URL = "ws://127.0.0.1:8085/"; 
+// Стандартный порт Streamer.bot
+const WS_URL = "ws://127.0.0.1:4455/"; 
 
 let ws;
 let word = "";
@@ -195,15 +195,29 @@ function connect() {
     ws = new WebSocket(WS_URL);
 
     ws.onopen = () => {
-        document.getElementById("instructions").innerText = "💬 Бот успешно подключен! Игра начинается.";
+        document.getElementById("instructions").innerText = "💬 Бот подключен! Слушаю чат YouTube...";
+        
+        // КРИТИЧЕСКИЙ ШАГ: Подписываемся на события чата YouTube напрямую в боте
+        ws.send(JSON.stringify({
+            "request": "Subscribe",
+            "events": {
+                "YouTube": ["Message"]
+            },
+            "id": "obs-game"
+        }));
+        
         startRound();
     };
 
     ws.onmessage = (msg) => {
         try {
             let data = JSON.parse(msg.data);
-            if (data.event === "chat" && data.user && data.message) {
-                handleChat(data.user, data.message);
+            
+            // Официальный формат разбора логов Streamer.bot для YouTube
+            if (data.event && data.event.source === "YouTube" && data.event.type === "Message") {
+                let user = data.data.message.user.name;
+                let text = data.data.message.text;
+                if (user && text) handleChat(user, text);
             }
         } catch(e){}
     };
@@ -216,8 +230,8 @@ function connect() {
 
 function startRound() {
     let w = WORDS[Math.floor(Math.random() * WORDS.length)];
-    word = w[0];      // Исправлено: берем строго само текстовое слово
-    category = w[1];  // Исправлено: берем строго описание категории
+    word = w[0];      
+    category = w[1];  
     guessed = [];
 
     document.getElementById("category").innerText = category;
@@ -245,12 +259,10 @@ function renderWord() {
 function handleChat(user, msg) {
     let upperMsg = msg.toUpperCase().trim();
 
-    // Обрабатываем и русскую !б, и английскую !b
     if (upperMsg.startsWith("!Б") || upperMsg.startsWith("!B")) {
-        let parts = upperMsg.split(/\s+/); // Надежно делим по пробелам
-        if (parts.length < 2) return; 
-        
-        let l = parts[1].trim().substring(0, 1); // Исправлено: забираем саму букву из второго элемента
+        // Безопасный сплит: убираем команду, берём букву
+        let clean = upperMsg.replace("!Б", "").replace("!B", "").trim();
+        let l = clean.substring(0, 1);
         if (!l) return;
 
         if (guessed.includes(l)) return;
@@ -311,14 +323,14 @@ function updateLeaderboardSlots() {
 }
 
 function updateLB() {
-    let arr = Object.entries(scores).sort((a,b) => b[1] - a[1]).slice(0,10); // Сортируем по очкам
+    let arr = Object.entries(scores).sort((a,b) => b[1] - a[1]).slice(0,10);
     let list = document.getElementById("lb");
     list.innerHTML = "";
 
     arr.forEach((x, i) => {
         let entry = document.createElement("div");
         entry.className = "score-entry";
-        entry.innerHTML = `<span>${i+1}. 👤 ${x[0]}</span><span>${x[1]} XP</span>`; // Выводим ник игрока и его очки
+        entry.innerHTML = `<span>${i+1}. 👤 ${x[0]}</span><span>${x[1]} XP</span>`; 
         list.appendChild(entry);
     });
 
