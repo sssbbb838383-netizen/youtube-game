@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Игра для OBS - На весь экран</title>
+    <title>Игра для OBS - На весь экран (Топ-10 в столбик)</title>
     <style>
         body {
             margin: 0;
@@ -23,7 +23,6 @@
             border-radius: 25px;
             border: 4px solid #ffcc00;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.85);
-            /* Вернули большой размер для всего экрана */
             width: 950px; 
         }
         #category {
@@ -41,7 +40,6 @@
             flex-wrap: wrap;
         }
         .letter-box {
-            /* Крупные, заметные плашки букв */
             width: 60px;
             height: 70px;
             background: #ffffff;
@@ -71,19 +69,42 @@
         }
         #leaderboard {
             margin-top: 30px;
-            font-size: 20px;
             text-align: left;
             border-top: 2px solid #333;
             padding-top: 20px;
         }
+        .leaderboard-title {
+            color: #ff4757;
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        /* Сетка для отображения топа в два столбика */
+        #leaderboard-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 25px;
+        }
         .score-entry {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             background: rgba(255, 255, 255, 0.05);
             padding: 7px 15px;
-            margin: 5px 0;
             border-radius: 8px;
             border-left: 4px solid #ffcc00;
+            font-size: 18px;
+        }
+        .score-entry span:first-child {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 260px;
+        }
+        .score-entry span:last-child {
+            color: #00ffcc;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -95,9 +116,9 @@
         <div id="instructions">💬 Команды для чата: !б [буква] или !слово [слово]</div>
         
         <div id="leaderboard">
-            <div style="color: #ff4757; font-weight: bold; margin-bottom: 12px;">🏆 ТОП-10 ИГРОКОВ РАУНДА:</div>
+            <div class="leaderboard-title">🏆 ТОП-10 ИГРОКОВ РАУНДА:</div>
             <div id="leaderboard-list">
-                <div style="color: #888; font-style: italic;">Ожидание ходов зрителей...</div>
+                <!-- Сюда JS будет автоматически в два столбика добавлять игроков -->
             </div>
         </div>
     </div>
@@ -128,6 +149,7 @@
             guessedLetters = [];
             document.getElementById("category").innerText = `Категория: ${currentWordObj.category}`;
             renderWord();
+            updateLeaderboard(); // Очищаем или обновляем при старте
         }
 
         function renderWord() {
@@ -198,9 +220,16 @@
         function updateLeaderboard() {
             const list = document.getElementById("leaderboard-list");
             list.innerHTML = "";
-            // Сохранили вывод до 10 игроков в топе
+            
             let sorted = Object.entries(scores).sort((a, b) => b - a).slice(0, 10); 
             
+            if (sorted.length === 0) {
+                list.style.display = "block";
+                list.innerHTML = '<div style="color: #888; font-style: italic; text-align: center;">Ожидание ходов зрителей...</div>';
+                return;
+            }
+            
+            list.style.display = "grid";
             sorted.forEach(([player, score], index) => {
                 const entry = document.createElement("div");
                 entry.classList.add("score-entry");
