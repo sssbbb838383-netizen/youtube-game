@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>OBS Game - Final Port 4455</title>
+<title>OBS Game - Final Fix 8085</title>
 <style>
 body {
     margin:0;
@@ -176,8 +176,8 @@ body {
 </div>
 
 <script>
-// ТОЧНЫЙ ПОРТ ВАШЕГО STREAMER.BOT — ТЕПЕРЬ ВСЁ ВЕРНО
-const WS_URL = "ws://127.0.0.1:4455/"; 
+// ПОДКЛЮЧАЕМСЯ СТРОГО К ПОРТУ БОТА 8085
+const WS_URL = "ws://127.0.0.1:8085/"; 
 
 let ws;
 let word = "";
@@ -202,6 +202,7 @@ function connect() {
     ws.onmessage = (msg) => {
         try {
             let data = JSON.parse(msg.data);
+            // Принимаем ручной JSON из C# кода
             if (data.event === "chat" && data.user && data.message) {
                 handleChat(data.user, data.message);
             }
@@ -216,8 +217,8 @@ function connect() {
 
 function startRound() {
     let w = WORDS[Math.floor(Math.random() * WORDS.length)];
-    word = w[0];      // Исправлено: берем само слово
-    category = w[1];  // Исправлено: берем подсказку
+    word = w[0];      
+    category = w[1];  
     guessed = [];
 
     document.getElementById("category").innerText = category;
@@ -249,7 +250,7 @@ function handleChat(user, msg) {
         let parts = upperMsg.split(" ");
         if (parts.length < 2) return; 
         
-        let l = parts[1].trim().substring(0, 1); // ИСПРАВЛЕНО: берем вторую часть массива (саму букву)
+        let l = parts[1].trim().substring(0, 1); 
         if (!l) return;
 
         if (guessed.includes(l)) return;
@@ -317,7 +318,7 @@ function updateLB() {
     arr.forEach((x, i) => {
         let entry = document.createElement("div");
         entry.className = "score-entry";
-        entry.innerHTML = `<span>${i+1}. 👤 ${x[0]}</span><span>${x[1]} XP</span>`; // ИСПРАВЛЕНО: чистый вывод имени и очков
+        entry.innerHTML = `<span>${i+1}. 👤 ${x[0]}</span><span>${x[1]} XP</span>`; 
         list.appendChild(entry);
     });
 
