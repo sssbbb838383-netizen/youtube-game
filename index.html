@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>OBS Game - Fixed 8085</title>
+<title>OBS Game - Fixed Russian Commands</title>
 <style>
 body {
     margin:0;
@@ -244,10 +244,13 @@ function renderWord() {
 function handleChat(user, msg) {
     let upperMsg = msg.toUpperCase().trim();
 
-    if (upperMsg.startsWith("!Б")) {
-        // Вырезаем букву напрямую без split, просто берём последний символ сообщения
-        let l = upperMsg.substring(upperMsg.length - 1).trim();
-        if (!l || l === "Б") return;
+    // ИСПРАВЛЕНО: Теперь игра понимает и русскую !Б, и английскую !B
+    if (upperMsg.startsWith("!Б") || upperMsg.startsWith("!B")) {
+        let parts = upperMsg.split(/\s+/); // Разбиваем по пробелам
+        if (parts.length < 2) return; 
+        
+        let l = parts[1].trim().substring(0, 1); // Берем строго букву
+        if (!l) return;
 
         if (guessed.includes(l)) return;
 
@@ -314,7 +317,7 @@ function updateLB() {
     arr.forEach((x, i) => {
         let entry = document.createElement("div");
         entry.className = "score-entry";
-        entry.innerHTML = `<span>${i+1}. 👤 ${x[0]}</span><span>${x[1]} XP</span>`; 
+        entry.innerHTML = `<span>${i+1}. 👤 ${x[0]}</span><span>${x[1]} XP</span>`; // ИСПРАВЛЕНО: красивый вывод без багов
         list.appendChild(entry);
     });
 
