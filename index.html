@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>OBS Game - Fixed Database Arrays</title>
+<title>OBS Game - Professional WebSocket Edition</title>
 <style>
 body {
     margin:0;
@@ -215,8 +215,8 @@ function connect() {
 
 function startRound() {
     let w = WORDS[Math.floor(Math.random() * WORDS.length)];
-    word = w[0];      // ИСПРАВЛЕНО НА СТО %: берем строго само слово
-    category = w[1];  // ИСПРАВЛЕНО НА СТО %: берем подсказку категории
+    word = w[0];      
+    category = w[1];  
     guessed = [];
 
     document.getElementById("category").innerText = category;
@@ -244,12 +244,12 @@ function renderWord() {
 function handleChat(user, msg) {
     let upperMsg = msg.toUpperCase().trim();
 
-    // Принимает и русскую !б, и английскую !b
+    // ВСЕЯДНЫЙ ПАРСИНГ: Удаляем команду !Б или !B, а из остатка строки берем ПЕРВУЮ букву
     if (upperMsg.startsWith("!Б") || upperMsg.startsWith("!B")) {
-        let parts = upperMsg.split(/\s+/);
-        if (parts.length < 2) return; 
+        let textAfterCmd = upperMsg.substring(2).trim(); // Отрезаем первые 2 символа (!б) и убираем пробелы
+        if (!textAfterCmd) return;
         
-        let l = parts[1].substring(0, 1); // Берем чистый символ буквы
+        let l = textAfterCmd.substring(0, 1); // Берем самую первую букву, которая осталась
         if (!l) return;
 
         if (guessed.includes(l)) return;
@@ -277,9 +277,6 @@ function handleChat(user, msg) {
         }
     }
 }
-
-// Защита от накрутки очков за уже открытые буквы
-let guessedLettersThisRound = new Set();
 
 function checkWin() {
     let isWin = true;
@@ -313,14 +310,14 @@ function updateLeaderboardSlots() {
 }
 
 function updateLB() {
-    let arr = Object.entries(scores).sort((a,b) => b[1] - a[1]).slice(0,10); // Исправлен баг сортировки числового массива
+    let arr = Object.entries(scores).sort((a,b) => b[1] - a[1]).slice(0,10);
     let list = document.getElementById("lb");
     list.innerHTML = "";
 
     arr.forEach((x, i) => {
         let entry = document.createElement("div");
         entry.className = "score-entry";
-        entry.innerHTML = `<span>${i+1}. 👤 ${x[0]}</span><span>${x[1]} XP</span>`; // Исправлен баг "x" — теперь ники выводятся идеально!
+        entry.innerHTML = `<span>${i+1}. 👤 ${x[0]}</span><span>${x[1]} XP</span>`; 
         list.appendChild(entry);
     });
 
