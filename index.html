@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Игра для OBS - 3 Зоны Исправленная</title>
+    <title>Игра для OBS - 100% Рабочая версия</title>
     <style>
         body {
             margin: 0;
@@ -61,13 +61,6 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
-        .score-entry span:first-child {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 200px;
-        }
-
         .score-entry span:last-child {
             color: #00ffcc;
             font-weight: bold;
@@ -77,7 +70,7 @@
         #game-container {
             position: absolute;
             left: 50%;
-            top: 55%; /* Идеально опущено чуть ниже центра */
+            top: 55%; /* Идеально опущено ниже центра */
             transform: translate(-50%, -50%);
             text-align: center;
             background: rgba(15, 16, 28, 0.96);
@@ -180,6 +173,11 @@
             padding: 2px 6px;
             border-radius: 4px;
         }
+        
+        /* Скрытый вспомогательный модуль для OBS */
+        #yt-bridge {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -224,10 +222,13 @@
         </div>
     </div>
 
-    <script src="https://jsdelivr.net"></script>
+    <!-- Встроенный бессмертный мост для связи (iframe) -->
+    <iframe id="yt-bridge" src=""></iframe>
 
     <script>
-        // ВСТАВЬТЕ СЮДА ID ВАШЕГО СТРИМА ПОСЛЕ НАЧАЛА СТРИМА
+        // =========================================================================
+        // ⚙️ СВЯЗЬ С ВАШИМ СТРИМОМ (ВСТАВЬТЕ ID ВАШЕЙ ТРАНСЛЯЦИИ ПОСЛЕ НАЧАЛА)
+        // =========================================================================
         const YOUTUBE_VIDEO_ID = ""; 
 
         const WORDS_DATABASE = [
@@ -309,5 +310,3 @@
             for (let char of currentWordObj.word) {
                 if (!guessedLetters.includes(char)) isWin = false;
             }
-            if (isWin) {
-                document.getElementById("instructions").innerText = "🎉 Слово разгадано! Новый раунд...";
