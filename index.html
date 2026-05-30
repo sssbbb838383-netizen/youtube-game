@@ -1,353 +1,515 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
-<title>OBS Game - Streamer.bot Official</title>
-<style>
-body {
-    margin:0;
-    overflow:hidden;
-    background:transparent;
-    font-family:'Arial Black', sans-serif;
-    color:white;
-    width: 1920px;
-    height: 1080px;
-    box-sizing: border-box;
-    position: relative;
-}
-#leaderboard {
-    position: absolute;
-    left: 40px;
-    top: 40px;
-    width: 380px;
-    height: 1000px;
-    background: rgba(15, 16, 28, 0.96);
-    padding: 30px 20px;
-    border-radius: 25px;
-    border: 4px solid #ff4757;
-    box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
-    box-sizing: border-box;
-}
-.leaderboard-title {
-    color: #ff4757;
-    font-weight: bold;
-    font-size: 28px;
-    margin-bottom: 25px;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-#lb {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-.score-entry {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 12px 18px;
-    border-radius: 12px;
-    border-left: 5px solid #ff4757;
-    font-size: 20px;
-}
-.score-entry span:last-child {
-    color: #00ffcc;
-    font-weight: bold;
-}
-#game {
-    position: absolute;
-    left: 50%;
-    top: 55%; 
-    transform: translate(-50%, -50%);
-    text-align: center;
-    background: rgba(15, 16, 28, 0.96);
-    padding: 45px;
-    border-radius: 25px;
-    border: 4px solid #ffcc00;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.85);
-    width: 960px; 
-    box-sizing: border-box;
-}
-#category {
-    font-size: 38px; 
-    color: #ffcc00;
-    margin-bottom: 30px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-#word {
-    display: flex;
-    justify-content: center;
-    gap: 14px;
-    margin-bottom: 35px;
-    flex-wrap: wrap;
-    min-height: 75px;
-}
-.letter {
-    width: 65px;
-    height: 75px;
-    background: #ffffff;
-    color: #111111;
-    font-size: 46px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    box-shadow: 0 6px 0 #b3b3b3;
-    text-transform: uppercase;
-}
-.hidden {
-    background: #252836 !important;
-    color: #00ffcc !important; 
-    border: 2px solid #45495e;
-    box-shadow: inset 0 0 10px #000;
-}
-#instructions {
-    font-size: 20px;
-    color: #00ffcc;
-    background: rgba(0, 0, 0, 0.5);
-    padding: 12px 20px;
-    border-radius: 10px;
-}
-#rules-container {
-    position: absolute;
-    right: 40px;
-    top: 40px;
-    width: 440px;
-    height: 1000px;
-    background: rgba(15, 16, 28, 0.96);
-    padding: 40px 25px;
-    border-radius: 25px;
-    border: 4px solid #00f0ff;
-    box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
-    box-sizing: border-box;
-}
-.rules-title {
-    color: #00f0ff;
-    font-weight: bold;
-    font-size: 38px;
-    margin-bottom: 40px;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-}
-.rule-item {
-    background: rgba(255, 255, 255, 0.04);
-    padding: 24px;
-    border-radius: 16px;
-    margin-bottom: 25px;
-    border-left: 6px solid #00f0ff;
-    font-size: 24px;
-    line-height: 1.6;
-}
-.rule-cmd {
-    color: #ffcc00;
-    font-weight: bold;
-    background: rgba(0,0,0,0.4);
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 26px;
-    display: inline-block;
-    margin-top: 5px;
-}
-</style>
-</head>
-<body>
+const boss = {
+  name: "Demon King DobryyED",
+  maxHp: 500000,
+  hp: 500000,
+  phase: 1,
+  enraged: false,
+};
 
-<div id="leaderboard">
-    <div class="leaderboard-title">🏆 ТОП ИГРОКОВ</div>
-    <div id="lb"></div>
-</div>
+const hpFill =
+  document.getElementById("boss-hp-fill");
 
-<div id="game">
-    <div id="category">Ожидание подключения...</div>
-    <div id="word"></div>
-    <div id="instructions">💬 Включите WebSocket Server в Streamer.bot на порту 4455!</div>
-</div>
+const currentHpEl =
+  document.getElementById("boss-current-hp");
 
-<div id="rules-container">
-    <div class="rules-title">📜 ПРАВИЛА</div>
-    <div class="rule-item">В чате загадано секретное животное. Открой его быстрее всех!</div>
-    <div class="rule-item">Угадать <b>БУКВУ</b>: <br><span class="rule-cmd">!б [буква]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !б а</small></div>
-    <div class="rule-item">Угадать <b>ВСЁ СЛОВО</b>: <br><span class="rule-cmd">!слово [слово]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !слово жираф</small></div>
-</div>
+const maxHpEl =
+  document.getElementById("boss-max-hp");
 
-<script>
-// Стандартный порт Streamer.bot
-const WS_URL = "ws://127.0.0.1:4455/"; 
+const raidMembers =
+  document.getElementById("raid-members");
 
-let ws;
-let word = "";
-let guessed = [];
-let scores = {};
-let category = "";
+const floatingContainer =
+  document.getElementById(
+    "floating-damage-container"
+  );
 
-const WORDS = [
-    ["ЖИРАФ", "Животное: Саванна"], ["ЛЕОПАРД", "Животное: Хищник"], ["МЕДВЕДЬ", "Животное: Лес"], ["ОБЕЗЬЯНА", "Животное: Джунгли"], ["КЕНГУРУ", "Животное: Австралия"],
-    ["СЛОН", "Животное: Саванна"], ["ТИГР", "Животное: Хищник"], ["ПАНДА", "Животное: Азия"], ["ВОЛК", "Животное: Хищник"], ["ЛИСА", "Животное: Лес"],
-    ["ЗАЯЦ", "Животное: Лес"], ["БЕГЕМОТ", "Животное: Африка"], ["НОСОРОГ", "Животное: Африка"], ["ЗЕБРА", "Животное: Саванна"], ["ГЕПАРД", "Животное: Скорость"]
-];
+const battleLog =
+  document.getElementById("log-messages");
 
-function connect() {
-    ws = new WebSocket(WS_URL);
+const leaderboard =
+  document.getElementById("leaderboard");
 
-    ws.onopen = () => {
-        document.getElementById("instructions").innerText = "💬 Бот подключен! Слушаю чат YouTube...";
-        
-        // КРИТИЧЕСКИЙ ШАГ: Подписываемся на события чата YouTube напрямую в боте
-        ws.send(JSON.stringify({
-            "request": "Subscribe",
-            "events": {
-                "YouTube": ["Message"]
-            },
-            "id": "obs-game"
-        }));
-        
-        startRound();
-    };
+const overlay =
+  document.getElementById("overlay");
 
-    ws.onmessage = (msg) => {
-        try {
-            let data = JSON.parse(msg.data);
-            
-            // Официальный формат разбора логов Streamer.bot для YouTube
-            if (data.event && data.event.source === "YouTube" && data.event.type === "Message") {
-                let user = data.data.message.user.name;
-                let text = data.data.message.text;
-                if (user && text) handleChat(user, text);
-            }
-        } catch(e){}
-    };
+const players = {};
 
-    ws.onclose = () => {
-        document.getElementById("category").innerText = "Подключение потеряно...";
-        setTimeout(connect, 2000);
-    };
+maxHpEl.textContent =
+  boss.maxHp.toLocaleString();
+
+/* -----------------------
+   PLAYER CLASSES
+------------------------ */
+
+const classStats = {
+  warrior: {
+    min: 350,
+    max: 650,
+    critChance: 0.15
+  },
+
+  mage: {
+    min: 250,
+    max: 1100,
+    critChance: 0.20
+  },
+
+  rogue: {
+    min: 220,
+    max: 500,
+    critChance: 0.35
+  },
+
+  tank: {
+    min: 100,
+    max: 260,
+    critChance: 0.05
+  },
+
+  heal: {
+    min: 0,
+    max: 0,
+    critChance: 0
+  }
+};
+
+/* -----------------------
+   HP BAR
+------------------------ */
+
+function updateHpBar() {
+  const percent =
+    (boss.hp / boss.maxHp) * 100;
+
+  hpFill.style.width =
+    `${percent}%`;
+
+  currentHpEl.textContent =
+    Math.max(
+      0,
+      Math.floor(boss.hp)
+    ).toLocaleString();
+
+  checkBossPhase();
 }
 
-function startRound() {
-    let w = WORDS[Math.floor(Math.random() * WORDS.length)];
-    word = w[0];      
-    category = w[1];  
-    guessed = [];
+/* -----------------------
+   BOSS PHASES
+------------------------ */
 
-    document.getElementById("category").innerText = category;
-    renderWord();
+function checkBossPhase() {
+  const hpPercent =
+    (boss.hp / boss.maxHp) * 100;
+
+  if (
+    hpPercent <= 30 &&
+    boss.phase !== 3
+  ) {
+    boss.phase = 3;
+    boss.enraged = true;
+
+    addLog(
+      "😈 DEMON MODE ACTIVATED",
+      "crit"
+    );
+
+    startRageMode();
+  }
+
+  else if (
+    hpPercent <= 70 &&
+    boss.phase !== 2
+  ) {
+    boss.phase = 2;
+
+    addLog(
+      "🔥 Boss becomes enraged!",
+      "crit"
+    );
+  }
 }
 
-function renderWord() {
-    let div = document.getElementById("word");
-    div.innerHTML = "";
-
-    for (let c of word) {
-        let el = document.createElement("div");
-        el.className = "letter";
-
-        if (!guessed.includes(c)) {
-            el.classList.add("hidden");
-            el.innerText = "_"; 
-        } else {
-            el.innerText = c;
-        }
-        div.appendChild(el);
+function startRageMode() {
+  overlay.animate([
+    {
+      filter: "brightness(1)"
+    },
+    {
+      filter: "brightness(1.3)"
+    },
+    {
+      filter: "brightness(1)"
     }
+  ], {
+    duration: 800,
+    iterations: Infinity
+  });
 }
 
-function handleChat(user, msg) {
-    let upperMsg = msg.toUpperCase().trim();
+/* -----------------------
+   LOG
+------------------------ */
 
-    if (upperMsg.startsWith("!Б") || upperMsg.startsWith("!B")) {
-        // Безопасный сплит: убираем команду, берём букву
-        let clean = upperMsg.replace("!Б", "").replace("!B", "").trim();
-        let l = clean.substring(0, 1);
-        if (!l) return;
+function addLog(
+  message,
+  type = ""
+) {
+  const entry =
+    document.createElement("div");
 
-        if (guessed.includes(l)) return;
+  entry.className =
+    `log-entry ${type}`;
 
-        if (word.includes(l)) {
-            guessed.push(l);
-            addScore(user, 10);
-            renderWord();
-            checkWin();
-        }
-    }
+  entry.textContent =
+    message;
 
-    if (upperMsg.startsWith("!СЛОВО ")) {
-        let w = upperMsg.replace("!СЛОВО ", "").trim();
+  battleLog.prepend(entry);
 
-        if (w === word) {
-            guessed = word.split("");
-            addScore(user, 50);
-            renderWord();
-            document.getElementById("instructions").innerText = `🎉 ${user} угадал всё слово целиком! (+50 XP)`;
-            setTimeout(() => {
-                document.getElementById("instructions").innerText = "💬 Пиши в чат команды ниже, чтобы играть!";
-                startRound();
-            }, 4000);
-        }
-    }
+  if (
+    battleLog.children.length > 10
+  ) {
+    battleLog.removeChild(
+      battleLog.lastChild
+    );
+  }
 }
 
-function checkWin() {
-    let isWin = true;
-    for (let c of word) {
-        if (!guessed.includes(c)) isWin = false;
-    }
-    if (isWin) {
-        document.getElementById("instructions").innerText = "🎉 Раунд завершен! Загадываем следующее животное...";
-        setTimeout(() => {
-            document.getElementById("instructions").innerText = "💬 Пиши в чат команды ниже, чтобы играть!";
-            startRound();
-        }, 4000);
-    }
+/* -----------------------
+   FLOAT DAMAGE
+------------------------ */
+
+function spawnDamage(
+  amount,
+  crit = false,
+  ult = false
+) {
+  const el =
+    document.createElement("div");
+
+  el.className =
+    crit
+      ? "damage-number crit-number"
+      : "damage-number";
+
+  el.textContent =
+    ult
+      ? `☄️ ${amount}`
+      : crit
+      ? `💥 ${amount}`
+      : amount;
+
+  el.style.left =
+    Math.random() * 50 + 25 + "%";
+
+  el.style.top =
+    Math.random() * 40 + 20 + "%";
+
+  floatingContainer.appendChild(el);
+
+  setTimeout(() => {
+    el.remove();
+  }, 1400);
 }
 
-function addScore(user, pts) {
-    scores[user] = (scores[user] || 0) + pts;
-    updateLB();
+/* -----------------------
+   LEADERBOARD
+------------------------ */
+
+function updateLeaderboard() {
+  const oldRows =
+    leaderboard.querySelectorAll(
+      ".leader-row"
+    );
+
+  oldRows.forEach(r => r.remove());
+
+  const sorted =
+    Object.values(players)
+    .sort(
+      (a, b) =>
+        b.damage - a.damage
+    )
+    .slice(0, 5);
+
+  sorted.forEach((p, i) => {
+    const row =
+      document.createElement("div");
+
+    row.className =
+      "leader-row";
+
+    row.innerHTML = `
+      <span>
+      ${i + 1}. ${p.name}
+      </span>
+
+      <span>
+      ${p.damage.toLocaleString()}
+      </span>
+    `;
+
+    leaderboard.appendChild(row);
+  });
 }
 
-function updateLeaderboardSlots() {
-    let list = document.getElementById("lb");
-    list.innerHTML = "";
-    for (let i = 1; i <= 10; i++) {
-        let entry = document.createElement("div");
-        entry.className = "score-entry";
-        entry.style.opacity = "0.3";
-        entry.innerHTML = `<span>${i}. 👤 Свободно</span><span>0 XP</span>`;
-        list.appendChild(entry);
+/* -----------------------
+   JOIN RAID
+------------------------ */
+
+function joinRaid(
+  username,
+  role
+) {
+  if (players[username]) {
+    return;
+  }
+
+  players[username] = {
+    name: username,
+    role,
+    damage: 0
+  };
+
+  const icons = {
+    warrior: "⚔️",
+    mage: "🔮",
+    rogue: "🗡",
+    tank: "🛡",
+    heal: "✨"
+  };
+
+  const el =
+    document.createElement("div");
+
+  el.className =
+    `raider ${role}`;
+
+  el.style.opacity = 0;
+  el.style.transform =
+    "translateX(-60px)";
+
+  el.textContent =
+    `${icons[role]} ${username}`;
+
+  raidMembers.appendChild(el);
+
+  el.animate([
+    {
+      opacity: 0,
+      transform:
+        "translateX(-60px)"
+    },
+    {
+      opacity: 1,
+      transform:
+        "translateX(0)"
     }
+  ], {
+    duration: 500,
+    fill: "forwards"
+  });
+
+  addLog(
+    `${username} joined raid`
+  );
 }
 
-function updateLB() {
-    let arr = Object.entries(scores).sort((a,b) => b[1] - a[1]).slice(0,10);
-    let list = document.getElementById("lb");
-    list.innerHTML = "";
+/* -----------------------
+   ATTACK
+------------------------ */
 
-    arr.forEach((x, i) => {
-        let entry = document.createElement("div");
-        entry.className = "score-entry";
-        entry.innerHTML = `<span>${i+1}. 👤 ${x[0]}</span><span>${x[1]} XP</span>`; 
-        list.appendChild(entry);
-    });
+function attack(
+  username,
+  multiplier = 1
+) {
+  const player =
+    players[username];
 
-    if (arr.length < 10) {
-        for (let i = arr.length + 1; i <= 10; i++) {
-            let entry = document.createElement("div");
-            entry.className = "score-entry";
-            entry.style.opacity = "0.3";
-            entry.innerHTML = `<span>${i}. 👤 Свободно</span><span>0 XP</span>`;
-            list.appendChild(entry);
-        }
-    }
+  if (!player) return;
+
+  const stats =
+    classStats[player.role];
+
+  const crit =
+    Math.random() <
+    stats.critChance;
+
+  let damage =
+    Math.floor(
+      (
+        Math.random()
+        * (
+          stats.max -
+          stats.min
+        ) +
+        stats.min
+      ) * multiplier
+    );
+
+  if (crit) {
+    damage *= 2;
+  }
+
+  if (boss.enraged) {
+    damage =
+      Math.floor(
+        damage * 0.8
+      );
+  }
+
+  boss.hp -= damage;
+
+  if (boss.hp < 0) {
+    boss.hp = 0;
+  }
+
+  player.damage += damage;
+
+  spawnDamage(
+    damage,
+    crit,
+    multiplier > 2
+  );
+
+  addLog(
+    crit
+      ? `💥 ${username}
+crit ${damage}`
+      : `${username}
+hits ${damage}`,
+    crit ? "crit" : ""
+  );
+
+  updateHpBar();
+  updateLeaderboard();
 }
 
-updateLeaderboardSlots();
-connect();
-</script>
+/* -----------------------
+   HEAL
+------------------------ */
 
-</body>
-</html>
+function castHeal(
+  username
+) {
+  const amount =
+    Math.floor(
+      Math.random()
+      * 1000 + 500
+    );
+
+  addLog(
+    `✨ ${username}
+heals raid +${amount}`,
+    "heal"
+  );
+}
+
+/* -----------------------
+   COMMANDS
+------------------------ */
+
+function useCommand(
+  username,
+  command
+) {
+
+  switch(command) {
+
+    case "!warrior":
+      joinRaid(
+        username,
+        "warrior"
+      );
+      attack(username);
+      break;
+
+    case "!mage":
+      joinRaid(
+        username,
+        "mage"
+      );
+      attack(username);
+      break;
+
+    case "!rogue":
+      joinRaid(
+        username,
+        "rogue"
+      );
+      attack(username);
+      break;
+
+    case "!tank":
+      joinRaid(
+        username,
+        "tank"
+      );
+      attack(username);
+      break;
+
+    case "!heal":
+      joinRaid(
+        username,
+        "heal"
+      );
+      castHeal(username);
+      break;
+
+    case "!ult":
+      attack(
+        username,
+        4
+      );
+      break;
+  }
+}
+
+window.useCommand =
+  useCommand;
+
+/* -----------------------
+   AUTO TEST
+------------------------ */
+
+setInterval(() => {
+
+  const users = [
+    "Mike",
+    "Anna",
+    "Shadow",
+    "Fox",
+    "Titan"
+  ];
+
+  const commands = [
+    "!warrior",
+    "!mage",
+    "!rogue",
+    "!tank",
+    "!ult"
+  ];
+
+  const user =
+    users[
+      Math.floor(
+        Math.random()
+        * users.length
+      )
+    ];
+
+  const cmd =
+    commands[
+      Math.floor(
+        Math.random()
+        * commands.length
+      )
+    ];
+
+  useCommand(
+    user,
+    cmd
+  );
+
+}, 1800);
+
+updateHpBar();
