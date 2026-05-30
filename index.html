@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Игра для OBS - 100% Рабочая версия</title>
+    <title>Игра для OBS - Финал</title>
     <style>
         body {
             margin: 0;
@@ -70,7 +70,7 @@
         #game-container {
             position: absolute;
             left: 50%;
-            top: 55%; /* Идеально опущено ниже центра */
+            top: 55%; 
             transform: translate(-50%, -50%);
             text-align: center;
             background: rgba(15, 16, 28, 0.96);
@@ -173,11 +173,6 @@
             padding: 2px 6px;
             border-radius: 4px;
         }
-        
-        /* Скрытый вспомогательный модуль для OBS */
-        #yt-bridge {
-            display: none;
-        }
     </style>
 </head>
 <body>
@@ -198,39 +193,14 @@
     <!-- ПРАВАЯ ПАНЕЛЬ: ПРАВИЛА ИГРЫ -->
     <div id="rules-container">
         <div class="rules-title">📜 ПРАВИЛА</div>
-        
-        <div class="rule-item">
-            Каждый раунд загадывается случайное слово и пишется его категория.
-        </div>
-        
-        <div class="rule-item">
-            Чтобы угадать <b>БУКВУ</b>, отправь в чат: <br>
-            <span class="rule-cmd">!б [буква]</span> <br>
-            <small style="color: #aaa;">Пример: !б а</small> <br>
-            <span style="color: #00ffcc;">+10 XP за успех!</span>
-        </div>
-        
-        <div class="rule-item">
-            Чтобы угадать <b>СЛОВО ЦЕЛИКОМ</b>, отправь в чат: <br>
-            <span class="rule-cmd">!слово [слово]</span> <br>
-            <small style="color: #aaa;">Пример: !слово арбуз</small> <br>
-            <span style="color: #00ffcc;">+50 XP за успех!</span>
-        </div>
-
-        <div class="rule-item">
-            Попади в таблицу лидеров слева и стань лучшим игроком стрима!
-        </div>
+        <div class="rule-item">Каждый раунд загадывается случайное слово и пишется его категория.</div>
+        <div class="rule-item">Чтобы угадать <b>БУКВУ</b>, отправь в чат: <br><span class="rule-cmd">!б [буква]</span><br><small style="color: #aaa;">Пример: !б а</small><br><span style="color: #00ffcc;">+10 XP за успех!</span></div>
+        <div class="rule-item">Чтобы угадать <b>СЛОВО ЦЕЛИКОМ</b>, отправь в чат: <br><span class="rule-cmd">!слово [слово]</span><br><small style="color: #aaa;">Пример: !слово арбуз</small><br><span style="color: #00ffcc;">+50 XP за успех!</span></div>
+        <div class="rule-item">Попади в таблицу лидеров слева и стань лучшим игроком стрима!</div>
     </div>
 
-    <!-- Встроенный бессмертный мост для связи (iframe) -->
-    <iframe id="yt-bridge" src=""></iframe>
-
     <script>
-        // =========================================================================
-        // ⚙️ СВЯЗЬ С ВАШИМ СТРИМОМ (ВСТАВЬТЕ ID ВАШЕЙ ТРАНСЛЯЦИИ ПОСЛЕ НАЧАЛА)
-        // =========================================================================
-        const YOUTUBE_VIDEO_ID = ""; 
-
+        // База слов (строго без внешних скриптов)
         const WORDS_DATABASE = [
             { word: "АРБУЗ", category: "Еда / Ягода" },
             { word: "СТРИМЕР", category: "Профессия" },
@@ -247,21 +217,23 @@
         let scores = {};
 
         function initNewRound() {
-            currentWordObj = WORDS_DATABASE[Math.floor(Math.random() * WORDS_DATABASE.length)];
-            guessedLetters = [];
-            document.getElementById("category").innerText = `Категория: ${currentWordObj.category}`;
-            renderWord();
-            updateLeaderboard();
+            try {
+                currentWordObj = WORDS_DATABASE[Math.floor(Math.random() * WORDS_DATABASE.length)];
+                guessedLetters = [];
+                document.getElementById("category").innerText = `Категория: ${currentWordObj.category}`;
+                renderWord();
+                updateLeaderboard();
+            } catch (e) {
+                console.error("Ошибка раунда:", e);
+            }
         }
 
         function renderWord() {
             const container = document.getElementById("word-display");
             container.innerHTML = "";
-
             for (let char of currentWordObj.word) {
                 const box = document.createElement("div");
                 box.classList.add("letter-box");
-
                 if (guessedLetters.includes(char)) {
                     box.innerText = char;
                 } else {
@@ -272,41 +244,44 @@
             }
         }
 
-        function processGameMessage(user, msg) {
-            msg = msg.trim().toUpperCase();
-
-            if (msg.startsWith("!Б ")) {
-                let letter = msg.replace("!Б ", "").trim().substring(0, 1);
-                if (!letter) return;
-
-                if (currentWordObj.word.includes(letter) && !guessedLetters.includes(letter)) {
-                    guessedLetters.push(letter);
-                    scores[user] = (scores[user] || 0) + 10;
-                    renderWord();
-                    updateLeaderboard();
-                    checkWin();
+        function updateLeaderboard() {
+            const list = document.getElementById("leaderboard-list");
+            list.innerHTML = "";
+            let sorted = Object.entries(scores).sort((a, b) => b - a).slice(0, 10); 
+            
+            if (sorted.length === 0) {
+                for (let i = 1; i <= 10; i++) {
+                    const entry = document.createElement("div");
+                    entry.classList.add("score-entry");
+                    entry.style.opacity = "0.3";
+                    entry.innerHTML = `<span>${i}. 👤 Ожидание...</span><span>0 XP</span>`;
+                    list.appendChild(entry);
                 }
+                return;
             }
+            
+            sorted.forEach(([player, score], index) => {
+                const entry = document.createElement("div");
+                entry.classList.add("score-entry");
+                entry.innerHTML = `<span>${index + 1}. 👤 ${player}</span><span>${score} XP</span>`;
+                list.appendChild(entry);
+            });
 
-            if (msg.startsWith("!СЛОВО ")) {
-                let guessedWord = msg.replace("!СЛОВО ", "").trim();
-                if (guessedWord === currentWordObj.word) {
-                    scores[user] = (scores[user] || 0) + 50;
-                    guessedLetters = currentWordObj.word.split("");
-                    renderWord();
-                    updateLeaderboard();
-                    
-                    document.getElementById("instructions").innerText = `🎉 ${user} угадал слово целиком!`;
-                    setTimeout(() => {
-                        document.getElementById("instructions").innerText = "💬 Пиши в чат команды ниже, чтобы играть!";
-                        initNewRound();
-                    }, 4000);
+            if (sorted.length < 10) {
+                for (let i = sorted.length + 1; i <= 10; i++) {
+                    const entry = document.createElement("div");
+                    entry.classList.add("score-entry");
+                    entry.style.opacity = "0.3";
+                    entry.innerHTML = `<span>${i}. 👤 Свободно</span><span>0 XP</span>`;
+                    list.appendChild(entry);
                 }
             }
         }
 
-        function checkWin() {
-            let isWin = true;
-            for (let char of currentWordObj.word) {
-                if (!guessedLetters.includes(char)) isWin = false;
-            }
+        // Запуск полностью изолированной логики
+        window.onload = function() {
+            initNewRound();
+        };
+    </script>
+</body>
+</html>
