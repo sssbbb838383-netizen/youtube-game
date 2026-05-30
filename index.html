@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Игра для OBS - Полноэкранная версия</title>
+    <title>Игра для OBS - Топ Слева</title>
     <style>
         body {
             margin: 0;
@@ -14,135 +14,141 @@
             width: 1920px;
             height: 1080px;
             box-sizing: border-box;
+            position: relative;
         }
 
-        #game-container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 60px 80px;
-            box-sizing: border-box;
-            background: rgba(15, 16, 28, 0.93);
-            border: 8px solid #ffcc00;
-            box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.9);
-        }
-
-        #category {
-            font-size: 56px; 
-            color: #ffcc00;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            text-shadow: 3px 3px 6px #000;
-            margin: 0;
-        }
-
-        #word-display {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin: 40px 0;
-        }
-
-        .letter-box {
-            width: 90px;
-            height: 110px;
-            background: #ffffff;
-            color: #111111;
-            font-size: 64px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 16px;
-            box-shadow: 0 8px 0 #b3b3b3, 0 10px 20px rgba(0,0,0,0.5);
-            text-transform: uppercase;
-        }
-
-        .hidden-letter {
-            background: #252836 !important;
-            color: #252836 !important;
-            border: 3px solid #45495e;
-            box-shadow: inset 0 0 15px #000;
-        }
-
-        #instructions {
-            font-size: 28px;
-            color: #00ffcc;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 15px 30px;
-            border-radius: 12px;
-            border: 2px solid rgba(0, 255, 204, 0.3);
-            display: inline-block;
-            align-self: center;
-            text-shadow: 2px 2px 4px #000;
-        }
-
+        /* ТАБЛИЦА ЛИДЕРОВ СЛЕВА (В ОДИН СТОЛБИК) */
         #leaderboard {
-            margin-top: 40px;
-            border-top: 4px solid #333;
-            padding-top: 25px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
+            position: absolute;
+            left: 50px;
+            top: 140px;
+            width: 320px;
+            background: rgba(15, 16, 28, 0.96);
+            padding: 25px;
+            border-radius: 20px;
+            border: 4px solid #ff4757;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+            box-sizing: border-box;
         }
 
         .leaderboard-title {
             color: #ff4757;
             font-weight: bold;
-            font-size: 32px;
-            margin-bottom: 25px;
+            font-size: 22px;
+            margin-bottom: 15px;
             text-align: center;
-            text-shadow: 2px 2px 4px #000;
+            text-transform: uppercase;
         }
 
         #leaderboard-list {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .score-entry {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255, 255, 255, 0.06);
-            padding: 12px 25px;
-            border-radius: 12px;
-            border-left: 6px solid #ffcc00;
-            font-size: 26px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border-left: 4px solid #ff4757;
+            font-size: 16px;
         }
 
         .score-entry span:first-child {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            max-width: 600px;
+            max-width: 160px;
         }
 
         .score-entry span:last-child {
             color: #00ffcc;
             font-weight: bold;
         }
+
+
+        /* ИГРОВОЕ ПОЛЕ ПО ЦЕНТРУ ЭКРАНА */
+        #game-container {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(15, 16, 28, 0.96);
+            padding: 40px;
+            border-radius: 25px;
+            border: 4px solid #ffcc00;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.85);
+            width: 850px; 
+            box-sizing: border-box;
+        }
+
+        #category {
+            font-size: 34px; 
+            color: #ffcc00;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #word-display {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 35px;
+            flex-wrap: wrap;
+        }
+
+        .letter-box {
+            width: 60px;
+            height: 70px;
+            background: #ffffff;
+            color: #111111;
+            font-size: 42px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            box-shadow: 0 5px 0 #b3b3b3;
+            text-transform: uppercase;
+        }
+
+        .hidden-letter {
+            background: #252836 !important;
+            color: #252836 !important;
+            border: 2px solid #45495e;
+            box-shadow: inset 0 0 10px #000;
+        }
+
+        #instructions {
+            font-size: 19px;
+            color: #00ffcc;
+            margin-top: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
 
+    <!-- ТАБЛИЦА ЛИДЕРОВ СЛЕВА -->
+    <div id="leaderboard">
+        <div class="leaderboard-title">🏆 ТОП-10</div>
+        <div id="leaderboard-list">
+            <div style="color: #888; font-style: italic; text-align: center; font-size: 14px;">Нет игроков...</div>
+        </div>
+    </div>
+
+    <!-- ИГРА ПО ЦЕНТРУ -->
     <div id="game-container">
         <div id="category">Загрузка...</div>
-        
         <div id="word-display"></div>
-        
         <div id="instructions">💬 Команды для чата: !б [буква] или !слово [слово]</div>
-        
-        <div id="leaderboard">
-            <div class="leaderboard-title">🏆 ТОП-10 ИГРОКОВ РАУНДА:</div>
-            <div id="leaderboard-list"></div>
-        </div>
     </div>
 
     <script src="https://jsdelivr.net"></script>
@@ -233,7 +239,7 @@
             if (isWin) {
                 document.getElementById("instructions").innerText = "🎉 Слово разгадано! Новый раунд...";
                 setTimeout(() => {
-                    document.getElementById("instructions").innerText = "💬 Команды для чата: !б [буква] или !слово [слово]";
+                    document.getElementById("instructions").innerText = "💬 Команны для чата: !б [буква] или !слово [слово]";
                     initNewRound();
                 }, 4000);
             }
@@ -246,16 +252,14 @@
             let sorted = Object.entries(scores).sort((a, b) => b - a).slice(0, 10); 
             
             if (sorted.length === 0) {
-                list.style.display = "block";
-                list.innerHTML = '<div style="color: #888; font-style: italic; font-size: 24px; text-align: center;">Ожидание ходов зрителей...</div>';
+                list.innerHTML = '<div style="color: #888; font-style: italic; text-align: center; font-size: 14px;">Нет игроков...</div>';
                 return;
             }
             
-            list.style.display = "grid";
             sorted.forEach(([player, score], index) => {
                 const entry = document.createElement("div");
                 entry.classList.add("score-entry");
-                entry.innerHTML = `<span>${index + 1}. 👤 ${player}</span><span>${score} XP</span>`;
+                entry.innerHTML = `<span>${index + 1}. ${player}</span><span>${score} XP</span>`;
                 list.appendChild(entry);
             });
         }
