@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Игра для OBS - Топ Слева</title>
+    <title>Игра для OBS - 3 Зоны</title>
     <style>
         body {
             margin: 0;
@@ -17,33 +17,36 @@
             position: relative;
         }
 
-        /* ТАБЛИЦА ЛИДЕРОВ СЛЕВА (В ОДИН СТОЛБИК) */
+        /* 1. ЗОНА СЛЕВА: ДЛИННЫЙ ТОП-10 */
         #leaderboard {
             position: absolute;
-            left: 50px;
-            top: 140px;
-            width: 320px;
+            left: 40px;
+            top: 40px;
+            width: 380px;
+            height: 1000px; /* Вытянут почти на всю высоту */
             background: rgba(15, 16, 28, 0.96);
-            padding: 25px;
-            border-radius: 20px;
+            padding: 30px 20px;
+            border-radius: 25px;
             border: 4px solid #ff4757;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
             box-sizing: border-box;
         }
 
         .leaderboard-title {
             color: #ff4757;
             font-weight: bold;
-            font-size: 22px;
-            margin-bottom: 15px;
+            font-size: 28px;
+            margin-bottom: 25px;
             text-align: center;
             text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px #000;
         }
 
         #leaderboard-list {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 12px;
         }
 
         .score-entry {
@@ -51,17 +54,18 @@
             justify-content: space-between;
             align-items: center;
             background: rgba(255, 255, 255, 0.05);
-            padding: 8px 12px;
-            border-radius: 8px;
-            border-left: 4px solid #ff4757;
-            font-size: 16px;
+            padding: 12px 18px;
+            border-radius: 12px;
+            border-left: 5px solid #ff4757;
+            font-size: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         .score-entry span:first-child {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            max-width: 160px;
+            max-width: 200px;
         }
 
         .score-entry span:last-child {
@@ -69,29 +73,29 @@
             font-weight: bold;
         }
 
-
-        /* ИГРОВОЕ ПОЛЕ ПО ЦЕНТРУ ЭКРАНА */
+        /* 2. ЗОНА ПО ЦЕНТРУ: ИГРОВОЕ ПОЛЕ (ОПУЩЕНО НИЖЕ) */
         #game-container {
             position: absolute;
             left: 50%;
-            top: 50%;
+            top: 55%; /* Сместили с 50% на 55%, чтобы опустить ниже */
             transform: translate(-50%, -50%);
             text-align: center;
             background: rgba(15, 16, 28, 0.96);
-            padding: 40px;
+            padding: 45px;
             border-radius: 25px;
             border: 4px solid #ffcc00;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.85);
-            width: 850px; 
+            width: 960px; 
             box-sizing: border-box;
         }
 
         #category {
-            font-size: 34px; 
+            font-size: 38px; 
             color: #ffcc00;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             text-transform: uppercase;
             letter-spacing: 2px;
+            text-shadow: 2px 2px 4px #000;
         }
 
         #word-display {
@@ -103,17 +107,17 @@
         }
 
         .letter-box {
-            width: 60px;
-            height: 70px;
+            width: 65px;
+            height: 75px;
             background: #ffffff;
             color: #111111;
-            font-size: 42px;
+            font-size: 46px;
             font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 12px;
-            box-shadow: 0 5px 0 #b3b3b3;
+            box-shadow: 0 6px 0 #b3b3b3;
             text-transform: uppercase;
         }
 
@@ -125,30 +129,101 @@
         }
 
         #instructions {
-            font-size: 19px;
+            font-size: 20px;
             color: #00ffcc;
-            margin-top: 15px;
             background: rgba(0, 0, 0, 0.5);
-            padding: 10px 20px;
+            padding: 12px 20px;
             border-radius: 10px;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        /* 3. ЗОНА СПРАВА: ПАНЕЛЬ ПРАВИЛ */
+        #rules-container {
+            position: absolute;
+            right: 40px;
+            top: 40px;
+            width: 380px;
+            height: 1000px;
+            background: rgba(15, 16, 28, 0.96);
+            padding: 30px 20px;
+            border-radius: 25px;
+            border: 4px solid #00f0ff;
+            box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
+            box-sizing: border-box;
+        }
+
+        .rules-title {
+            color: #00f0ff;
+            font-weight: bold;
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        .rule-item {
+            background: rgba(255, 255, 255, 0.04);
+            padding: 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 5px solid #00f0ff;
+            font-size: 18px;
+            line-height: 1.5;
+        }
+        
+        .rule-cmd {
+            color: #ffcc00;
+            font-weight: bold;
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
 
-    <!-- ТАБЛИЦА ЛИДЕРОВ СЛЕВА -->
+    <!-- ЛЕВАЯ ПАНЕЛЬ: ТОП-10 -->
     <div id="leaderboard">
-        <div class="leaderboard-title">🏆 ТОП-10</div>
+        <div class="leaderboard-title">🏆 ТОП ИГРОКОВ</div>
         <div id="leaderboard-list">
-            <div style="color: #888; font-style: italic; text-align: center; font-size: 14px;">Нет игроков...</div>
+            <!-- Сюда добавляются игроки -->
         </div>
     </div>
 
-    <!-- ИГРА ПО ЦЕНТРУ -->
+    <!-- ЦЕНТРАЛЬНАЯ ПАНЕЛЬ: ИГРА -->
     <div id="game-container">
         <div id="category">Загрузка...</div>
         <div id="word-display"></div>
-        <div id="instructions">💬 Команды для чата: !б [буква] или !слово [слово]</div>
+        <div id="instructions">💬 Пиши в чат команды ниже, чтобы играть!</div>
+    </div>
+
+    <!-- ПРАВАЯ ПАНЕЛЬ: ПРАВИЛА ИГРЫ -->
+    <div id="rules-container">
+        <div class="rules-title">📜 ПРАВИЛА</div>
+        
+        <div class="rule-item">
+            Каждый раунд загадывается случайное слово и пишется его категория.
+        </div>
+        
+        <div class="rule-item">
+            Чтобы угадать <b>БУКВУ</b>, отправь в чат: <br>
+            <span class="rule-cmd">!б [буква]</span> <br>
+            <small style="color: #aaa;">Пример: !б а</small> <br>
+            <span style="color: #00ffcc;">+10 XP за успех!</span>
+        </div>
+        
+        <div class="rule-item">
+            Чтобы угадать <b>СЛОВО ЦЕЛИКОМ</b>, отправь в чат: <br>
+            <span class="rule-cmd">!слово [слово]</span> <br>
+            <small style="color: #aaa;">Пример: !слово арбуз</small> <br>
+            <span style="color: #00ffcc;">+50 XP за успех!</span>
+        </div>
+
+        <div class="rule-item">
+            Попади в таблицу лидеров слева и стань лучшим игроком стрима!
+        </div>
     </div>
 
     <script src="https://jsdelivr.net"></script>
@@ -224,7 +299,7 @@
                     
                     document.getElementById("instructions").innerText = `🎉 ${user} угадал слово целиком!`;
                     setTimeout(() => {
-                        document.getElementById("instructions").innerText = "💬 Команды для чата: !б [буква] или !слово [слово]";
+                        document.getElementById("instructions").innerText = "💬 Пиши в чат команды ниже, чтобы играть!";
                         initNewRound();
                     }, 4000);
                 }
@@ -237,50 +312,3 @@
                 if (!guessedLetters.includes(char)) isWin = false;
             }
             if (isWin) {
-                document.getElementById("instructions").innerText = "🎉 Слово разгадано! Новый раунд...";
-                setTimeout(() => {
-                    document.getElementById("instructions").innerText = "💬 Команны для чата: !б [буква] или !слово [слово]";
-                    initNewRound();
-                }, 4000);
-            }
-        }
-
-        function updateLeaderboard() {
-            const list = document.getElementById("leaderboard-list");
-            list.innerHTML = "";
-            
-            let sorted = Object.entries(scores).sort((a, b) => b - a).slice(0, 10); 
-            
-            if (sorted.length === 0) {
-                list.innerHTML = '<div style="color: #888; font-style: italic; text-align: center; font-size: 14px;">Нет игроков...</div>';
-                return;
-            }
-            
-            sorted.forEach(([player, score], index) => {
-                const entry = document.createElement("div");
-                entry.classList.add("score-entry");
-                entry.innerHTML = `<span>${index + 1}. ${player}</span><span>${score} XP</span>`;
-                list.appendChild(entry);
-            });
-        }
-
-        function startChatListener() {
-            if (!YOUTUBE_VIDEO_ID) return;
-            try {
-                const liveChat = new YouTubeChat.LiveChat({ liveId: YOUTUBE_VIDEO_ID });
-                liveChat.on("chat", (chatItem) => {
-                    if (chatItem && chatItem.author && chatItem.message) {
-                        const user = chatItem.author.name;
-                        const message = chatItem.message.map(m => m.text || "").join("");
-                        processGameMessage(user, message);
-                    }
-                });
-                liveChat.start().catch(err => console.error(err));
-            } catch (e) { console.error(e); }
-        }
-
-        initNewRound();
-        startChatListener();
-    </script>
-</body>
-</html>
