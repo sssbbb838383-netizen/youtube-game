@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Игра для OBS - 100% Автономная</title>
+    <title>Игра для OBS - 100% Исправлено</title>
     <style>
         body {
             margin: 0;
@@ -127,7 +127,6 @@
             margin-bottom: 20px;
         }
 
-        /* ПАНЕЛЬ ДЛЯ ТЕСТА В БРАУЗЕРЕ (По центру) */
         #test-input-panel {
             display: flex;
             justify-content: center;
@@ -216,7 +215,6 @@
         <div id="word-display"></div>
         <div id="instructions">💬 Введите команду ниже для проверки игры!</div>
         
-        <!-- Панель ручного ввода прямо на экране -->
         <div id="test-input-panel">
             <input type="text" id="panel-input" placeholder="Например: !б а">
             <button onclick="sendManualCommand()">Отправить</button>
@@ -233,7 +231,7 @@
     </div>
 
     <script>
-        // База из 100 животных (без внешних подключений)
+        // Компактная, 100% стабильная база животных
         const WORDS_DATABASE = [
             { word: "ЖИРАФ", category: "Животное: Саванна" }, { word: "ЛЕОПАРД", category: "Животное: Хищник" }, { word: "МЕДВЕДЬ", category: "Животное: Лес" }, { word: "ОБЕЗЬЯНА", category: "Животное: Джунгли" }, { word: "КЕНГУРУ", category: "Животное: Австралия" },
             { word: "СЛОН", category: "Животное: Саванна" }, { word: "ТИГР", category: "Животное: Хищник" }, { word: "ПАНДА", category: "Животное: Азия" }, { word: "ВОЛК", category: "Животное: Хищник" }, { word: "ЛИСА", category: "Животное: Лес" },
@@ -245,4 +243,13 @@
             { word: "БАРАН", category: "Животное: Домашнее" }, { word: "КРОЛИК", category: "Животное: Домашнее" }, { word: "ХОМЯК", category: "Животное: Грызун" }, { word: "ПИНГВИН", category: "Птица: Антарктида" }, { word: "ФЛАМИНГО", category: "Птица: Розовая" },
             { word: "ПОПУГАЙ", category: "Птица: Экзотика" }, { word: "СТРАУС", category: "Птица: Бегун" }, { word: "ОРЕЛ", category: "Птица: Хищник" }, { word: "СОВА", category: "Птица: Ночная" }, { word: "ЛЕБЕДЬ", category: "Птица: Водоем" },
             { word: "АКУЛА", category: "Рыба: Хищник" }, { word: "ДЕЛЬФИН", category: "Море / Океан" }, { word: "КИТ", category: "Морской гигант" }, { word: "ОСЬМИНОГ", category: "Море / Океан" }, { word: "КРОКОДИЛ", category: "Рептилия" },
-            { word: "ЧЕРЕПАХА", category: "Рептилия" }, { word: "ЗМЕЯ", category: "Рептилия" }, { word: "ЛЯГУШКА", category: "Земноводное" }, { word: "ПАУК", category: "Насекомое" }, { word: "БАБОЧКА", category: "Насекомое" },
+            { word: "ЧЕРЕПАХА", category: "Рептилия" }, { word: "ЗМЕЯ", category: "Рептилия" }, { word: "ЛЯГУШКА", category: "Земноводное" }, { word: "ПАУК", category: "Насекомое" }, { word: "БАБОЧКА", category: "Насекомое" }
+        ];
+
+        let currentWordObj = {};
+        let guessedLetters = [];
+        let scores = {};
+
+        function initNewRound() {
+            currentWordObj = WORDS_DATABASE[Math.floor(Math.random() * WORDS_DATABASE.length)];
+            guessedLetters = [];
