@@ -94,6 +94,7 @@
             gap: 14px;
             margin-bottom: 35px;
             flex-wrap: wrap;
+            min-height: 75px;
         }
 
         .letter-box {
@@ -127,7 +128,7 @@
             margin-bottom: 20px;
         }
 
-        /* ТЕСТОВАЯ ПАНЕЛЬ ВВОДА ПРЯМО ПО ЦЕНТРУ */
+        /* ТЕСТОВАЯ ПАНЕЛЬ */
         #test-panel {
             display: flex;
             justify-content: center;
@@ -137,7 +138,7 @@
             padding: 15px;
             border-radius: 12px;
         }
-        #test-panel input {
+        #test-input {
             padding: 10px;
             font-size: 18px;
             border-radius: 8px;
@@ -215,11 +216,10 @@
 
     <!-- ЦЕНТРАЛЬНАЯ ПАНЕЛЬ -->
     <div id="game-container">
-        <div id="category">Категория...</div>
+        <div id="category">Выбор слова...</div>
         <div id="word-display"></div>
         <div id="instructions">💬 Вводите команды прямо сюда для теста игры!</div>
         
-        <!-- Окно ручного ввода команд -->
         <div id="test-panel">
             <input type="text" id="test-input" placeholder="Пример: !б а">
             <button onclick="sendTestMessage()">Отправить</button>
@@ -235,16 +235,62 @@
     </div>
 
     <script>
-        // База из 100 животных (100% автономная)
         const WORDS_DATABASE = [
             { word: "ЖИРАФ", category: "Животное: Саванна" }, { word: "ЛЕОПАРД", category: "Животное: Хищник" }, { word: "МЕДВЕДЬ", category: "Животное: Лес" }, { word: "ОБЕЗЬЯНА", category: "Животное: Джунгли" }, { word: "КЕНГУРУ", category: "Животное: Австралия" },
             { word: "СЛОН", category: "Животное: Саванна" }, { word: "ТИГР", category: "Животное: Хищник" }, { word: "ПАНДА", category: "Животное: Азия" }, { word: "ВОЛК", category: "Животное: Хищник" }, { word: "ЛИСА", category: "Животное: Лес" },
             { word: "ЗАЯЦ", category: "Животное: Лес" }, { word: "БЕГЕМОТ", category: "Животное: Африка" }, { word: "НОСОРОГ", category: "Животное: Африка" }, { word: "ЗЕБРА", category: "Животное: Саванна" }, { word: "ГЕПАРД", category: "Животное: Скорость" },
-            { word: "ГИЕНА", category: "Животное: Саванна" }, { word: "ПУМА", category: "Животное: Хищник" }, { word: "ЯГУАР", category: "Животное: Хищник" }, { word: "РЫСЬ", category: "Животное: Хищник" }, { word: "КАБАН", category: "Животное: Лес" },
-            { word: "ОЛЕНЬ", category: "Животное: Лес" }, { word: "ЛОСЬ", category: "Животное: Лес" }, { word: "КОСУЛЯ", category: "Животное: Лес" }, { word: "ЕНОТ", category: "Животное: Лес" }, { word: "БАРСУК", category: "Животное: Нора" },
-            { word: "КРОТ", category: "Животное: Подземное" }, { word: "БЕЛОЧКА", category: "Животное: Лес" }, { word: "СУСЛИК", category: "Животное: Степь" }, { word: "ЕЖИК", category: "Животное: Колючее" }, { word: "ДИКОБРАЗ", category: "Животное: Иглы" },
-            { word: "СОБАКА", category: "Животное: Домашнее" }, { word: "КОШКА", category: "Животное: Домашнее" }, { word: "ЛОШАДЬ", category: "Животное: Домашнее" }, { word: "КОРОВА", category: "Животное: Домашнее" }, { word: "СВИНЬЯ", category: "Животное: Домашнее" },
-            { word: "БАРАН", category: "Животное: Домашнее" }, { word: "КРОЛИК", category: "Животное: Домашнее" }, { word: "ХОМЯК", category: "Животное: Грызун" }, { word: "ПИНГВИН", category: "Птица: Антарктида" }, { word: "ФЛАМИНГО", category: "Птица: Розовая" },
-            { word: "ПОПУГАЙ", category: "Птица: Экзотика" }, { word: "СТРАУС", category: "Птица: Бегун" }, { word: "ОРЕЛ", category: "Птица: Хищник" }, { word: "СОВА", category: "Птица: Ночная" }, { word: "ЛЕБЕДЬ", category: "Птица: Водоем" },
-            { word: "АКУЛА", category: "Рыба: Хищник" }, { word: "ДЕЛЬФИН", category: "Море / Океан" }, { word: "КИТ", category: "Mорской гигант" }, { word: "ОСЬМИНОГ", category: "Море / Океан" }, { word: "КРОКОДИЛ", category: "Рептилия" },
-            { word: "ЧЕРЕПАХА", category: "Рептилия" }, { word: "ЗМЕЯ", category: "Рептилия" }, { word: "ЛЯГУШКА", category: "Земноводное" }, { word: "ПАУК", category: "Насекомое" }, { word: "БАБОЧКА", category: "Насекомое" },
+            { word: "ГИЕНА", category: "Животное: Саванна" }, { word: "ПУМА", category: "Животное: Хищник" }, { word: "ЯГУАР", category: "Животное: Хищник" }, { word: "РЫСЬ", category: "Животное: Хищник" }, { word: "КАБАН", category: "Животное: Лес" }
+        ];
+
+        let currentWordObj = {};
+        let guessedLetters = [];
+        let scores = {};
+
+        function initNewRound() {
+            currentWordObj = WORDS_DATABASE[Math.floor(Math.random() * WORDS_DATABASE.length)];
+            guessedLetters = [];
+            document.getElementById("category").innerText = "Категория: " + currentWordObj.category;
+            renderWord();
+            updateLeaderboard();
+        }
+
+        function renderWord() {
+            const container = document.getElementById("word-display");
+            container.innerHTML = "";
+            for (let i = 0; i < currentWordObj.word.length; i++) {
+                const char = currentWordObj.word[i];
+                const box = document.createElement("div");
+                box.classList.add("letter-box");
+                if (guessedLetters.includes(char)) {
+                    box.innerText = char;
+                } else {
+                    box.classList.add("hidden-letter");
+                    box.innerText = "?";
+                }
+                container.appendChild(box);
+            }
+        }
+
+        function processGameMessage(user, msg) {
+            msg = msg.trim().toUpperCase();
+
+            if (msg.startsWith("!Б ")) {
+                let letter = msg.replace("!Б ", "").trim().substring(0, 1);
+                if (!letter) return;
+
+                if (currentWordObj.word.includes(letter) && !guessedLetters.includes(letter)) {
+                    guessedLetters.push(letter);
+                    scores[user] = (scores[user] || 0) + 10;
+                    renderWord();
+                    updateLeaderboard();
+                    checkWin();
+                }
+            }
+
+            if (msg.startsWith("!СЛОВО ")) {
+                let guessedWord = msg.replace("!СЛОВО ", "").trim();
+                if (guessedWord === currentWordObj.word) {
+                    scores[user] = (scores[user] || 0) + 50;
+                    guessedLetters = currentWordObj.word.split("");
+                    renderWord();
+                    updateLeaderboard();
