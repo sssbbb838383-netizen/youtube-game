@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Интерфейс игры</title>
+    <title>Интерактивная игра для OBS</title>
     <style>
         body {
             margin: 0;
@@ -17,7 +17,7 @@
             position: relative;
         }
 
-        /* ЗОНА СЛЕВА: ТОП ИГРОКОВ */
+        /* ЛЕВАЯ ПАНЕЛЬ: ТОП-10 */
         #leaderboard {
             position: absolute;
             left: 40px;
@@ -40,10 +40,31 @@
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 2px;
-            text-shadow: 2px 2px 4px #000;
         }
 
-        /* ЗОНА ПО ЦЕНТРУ: ЖЕЛТАЯ РАМКА ДЛЯ ИГРЫ */
+        #leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .score-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px 18px;
+            border-radius: 12px;
+            border-left: 5px solid #ff4757;
+            font-size: 20px;
+        }
+
+        .score-entry span:last-child {
+            color: #00ffcc;
+            font-weight: bold;
+        }
+
+        /* ЦЕНТРАЛЬНАЯ ПАНЕЛЬ: ИГРОВОЕ ПОЛЕ */
         #game-container {
             position: absolute;
             left: 50%;
@@ -57,10 +78,87 @@
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.85);
             width: 960px; 
             box-sizing: border-box;
-            height: 350px;
         }
 
-        /* ЗОНА СПРАВА: ПРАВИЛА ИГРЫ */
+        #category {
+            font-size: 38px; 
+            color: #ffcc00;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #word-display {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 35px;
+            flex-wrap: wrap;
+        }
+
+        .letter-box {
+            width: 65px;
+            height: 75px;
+            background: #ffffff;
+            color: #111111;
+            font-size: 46px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            box-shadow: 0 6px 0 #b3b3b3;
+            text-transform: uppercase;
+        }
+
+        .hidden-letter {
+            background: #252836 !important;
+            color: #252836 !important;
+            border: 2px solid #45495e;
+            box-shadow: inset 0 0 10px #000;
+        }
+
+        #instructions {
+            font-size: 20px;
+            color: #00ffcc;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* ТЕСТОВАЯ ПАНЕЛЬ ВВОДА ПРЯМО ПО ЦЕНТРУ */
+        #test-panel {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 12px;
+        }
+        #test-panel input {
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 8px;
+            border: 2px solid #ffcc00;
+            width: 200px;
+            text-align: center;
+            background: white;
+            color: black;
+        }
+        #test-panel button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #ffcc00;
+            color: black;
+            border: none;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* ПРАВАЯ ПАНЕЛЬ: ПРАВИЛА */
         #rules-container {
             position: absolute;
             right: 40px;
@@ -71,7 +169,7 @@
             padding: 40px 25px;
             border-radius: 25px;
             border: 4px solid #00f0ff;
-            box-shadow: 0 0 35px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 240, 255, 0.2);
+            box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
             box-sizing: border-box;
         }
 
@@ -83,7 +181,6 @@
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 3px;
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.6), 2px 2px 4px #000;
         }
 
         .rule-item {
@@ -94,7 +191,6 @@
             border-left: 6px solid #00f0ff;
             font-size: 24px;
             line-height: 1.6;
-            text-shadow: 1px 1px 2px #000;
         }
         
         .rule-cmd {
@@ -111,20 +207,44 @@
 </head>
 <body>
 
+    <!-- ЛЕВАЯ ПАНЕЛЬ -->
     <div id="leaderboard">
         <div class="leaderboard-title">🏆 ТОП ИГРОКОВ</div>
+        <div id="leaderboard-list"></div>
     </div>
 
+    <!-- ЦЕНТРАЛЬНАЯ ПАНЕЛЬ -->
     <div id="game-container">
-        <!-- Рамка пустая, сюда мы наложим текст -->
+        <div id="category">Категория...</div>
+        <div id="word-display"></div>
+        <div id="instructions">💬 Вводите команды прямо сюда для теста игры!</div>
+        
+        <!-- Окно ручного ввода команд -->
+        <div id="test-panel">
+            <input type="text" id="test-input" placeholder="Пример: !б а">
+            <button onclick="sendTestMessage()">Отправить</button>
+        </div>
     </div>
 
+    <!-- ПРАВАЯ ПАНЕЛЬ -->
     <div id="rules-container">
         <div class="rules-title">📜 ПРАВИЛА</div>
-        <div class="rule-item">В чате загадано животное. Открой его быстрее всех!</div>
+        <div class="rule-item">В чате загадано секретное животное. Открой его быстрее всех!</div>
         <div class="rule-item">Угадать <b>БУКВУ</b>: <br><span class="rule-cmd">!б [буква]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !б а</small></div>
         <div class="rule-item">Угадать <b>ВСЁ СЛОВО</b>: <br><span class="rule-cmd">!слово [слово]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !слово жираф</small></div>
     </div>
 
-</body>
-</html>
+    <script>
+        // База из 100 животных (100% автономная)
+        const WORDS_DATABASE = [
+            { word: "ЖИРАФ", category: "Животное: Саванна" }, { word: "ЛЕОПАРД", category: "Животное: Хищник" }, { word: "МЕДВЕДЬ", category: "Животное: Лес" }, { word: "ОБЕЗЬЯНА", category: "Животное: Джунгли" }, { word: "КЕНГУРУ", category: "Животное: Австралия" },
+            { word: "СЛОН", category: "Животное: Саванна" }, { word: "ТИГР", category: "Животное: Хищник" }, { word: "ПАНДА", category: "Животное: Азия" }, { word: "ВОЛК", category: "Животное: Хищник" }, { word: "ЛИСА", category: "Животное: Лес" },
+            { word: "ЗАЯЦ", category: "Животное: Лес" }, { word: "БЕГЕМОТ", category: "Животное: Африка" }, { word: "НОСОРОГ", category: "Животное: Африка" }, { word: "ЗЕБРА", category: "Животное: Саванна" }, { word: "ГЕПАРД", category: "Животное: Скорость" },
+            { word: "ГИЕНА", category: "Животное: Саванна" }, { word: "ПУМА", category: "Животное: Хищник" }, { word: "ЯГУАР", category: "Животное: Хищник" }, { word: "РЫСЬ", category: "Животное: Хищник" }, { word: "КАБАН", category: "Животное: Лес" },
+            { word: "ОЛЕНЬ", category: "Животное: Лес" }, { word: "ЛОСЬ", category: "Животное: Лес" }, { word: "КОСУЛЯ", category: "Животное: Лес" }, { word: "ЕНОТ", category: "Животное: Лес" }, { word: "БАРСУК", category: "Животное: Нора" },
+            { word: "КРОТ", category: "Животное: Подземное" }, { word: "БЕЛОЧКА", category: "Животное: Лес" }, { word: "СУСЛИК", category: "Животное: Степь" }, { word: "ЕЖИК", category: "Животное: Колючее" }, { word: "ДИКОБРАЗ", category: "Животное: Иглы" },
+            { word: "СОБАКА", category: "Животное: Домашнее" }, { word: "КОШКА", category: "Животное: Домашнее" }, { word: "ЛОШАДЬ", category: "Животное: Домашнее" }, { word: "КОРОВА", category: "Животное: Домашнее" }, { word: "СВИНЬЯ", category: "Животное: Домашнее" },
+            { word: "БАРАН", category: "Животное: Домашнее" }, { word: "КРОЛИК", category: "Животное: Домашнее" }, { word: "ХОМЯК", category: "Животное: Грызун" }, { word: "ПИНГВИН", category: "Птица: Антарктида" }, { word: "ФЛАМИНГО", category: "Птица: Розовая" },
+            { word: "ПОПУГАЙ", category: "Птица: Экзотика" }, { word: "СТРАУС", category: "Птица: Бегун" }, { word: "ОРЕЛ", category: "Птица: Хищник" }, { word: "СОВА", category: "Птица: Ночная" }, { word: "ЛЕБЕДЬ", category: "Птица: Водоем" },
+            { word: "АКУЛА", category: "Рыба: Хищник" }, { word: "ДЕЛЬФИН", category: "Море / Океан" }, { word: "КИТ", category: "Mорской гигант" }, { word: "ОСЬМИНОГ", category: "Море / Океан" }, { word: "КРОКОДИЛ", category: "Рептилия" },
+            { word: "ЧЕРЕПАХА", category: "Рептилия" }, { word: "ЗМЕЯ", category: "Рептилия" }, { word: "ЛЯГУШКА", category: "Земноводное" }, { word: "ПАУК", category: "Насекомое" }, { word: "БАБОЧКА", category: "Насекомое" },
