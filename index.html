@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>OBS Game - WebSocket Edition</title>
+<title>OBS Game - Fixed 8085</title>
 <style>
 body {
     margin:0;
@@ -245,11 +245,9 @@ function handleChat(user, msg) {
     let upperMsg = msg.toUpperCase().trim();
 
     if (upperMsg.startsWith("!Б")) {
-        let parts = upperMsg.split(/\s+/); // Разбиваем по любым пробелам
-        if (parts.length < 2) return; 
-        
-        let l = parts[1].substring(0, 1); // Берем строго первый символ после команды !б
-        if (!l) return;
+        // Вырезаем букву напрямую без split, просто берём последний символ сообщения
+        let l = upperMsg.substring(upperMsg.length - 1).trim();
+        if (!l || l === "Б") return;
 
         if (guessed.includes(l)) return;
 
