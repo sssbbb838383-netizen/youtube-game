@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Игра для OBS - На весь экран (Топ-10 в столбик)</title>
+    <title>Игра для OBS - Полноэкранная версия</title>
     <style>
         body {
             margin: 0;
@@ -11,97 +11,119 @@
             font-family: 'Arial Black', sans-serif;
             color: white;
             overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            width: 1920px;
+            height: 1080px;
+            box-sizing: border-box;
         }
+
         #game-container {
-            text-align: center;
-            background: rgba(15, 16, 28, 0.96);
-            padding: 45px;
-            border-radius: 25px;
-            border: 4px solid #ffcc00;
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.85);
-            width: 950px; 
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 60px 80px;
+            box-sizing: border-box;
+            background: rgba(15, 16, 28, 0.93);
+            border: 8px solid #ffcc00;
+            box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.9);
         }
+
         #category {
-            font-size: 34px; 
+            font-size: 56px; 
             color: #ffcc00;
-            margin-bottom: 25px;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 4px;
+            text-shadow: 3px 3px 6px #000;
+            margin: 0;
         }
+
         #word-display {
             display: flex;
             justify-content: center;
-            gap: 14px;
-            margin-bottom: 35px;
+            gap: 20px;
             flex-wrap: wrap;
+            margin: 40px 0;
         }
+
         .letter-box {
-            width: 60px;
-            height: 70px;
+            width: 90px;
+            height: 110px;
             background: #ffffff;
             color: #111111;
-            font-size: 42px;
+            font-size: 64px;
             font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 12px;
-            box-shadow: 0 5px 0 #b3b3b3;
+            border-radius: 16px;
+            box-shadow: 0 8px 0 #b3b3b3, 0 10px 20px rgba(0,0,0,0.5);
             text-transform: uppercase;
         }
+
         .hidden-letter {
             background: #252836 !important;
             color: #252836 !important;
-            border: 2px solid #45495e;
-            box-shadow: inset 0 0 10px #000;
+            border: 3px solid #45495e;
+            box-shadow: inset 0 0 15px #000;
         }
+
         #instructions {
-            font-size: 19px;
+            font-size: 28px;
             color: #00ffcc;
-            margin-top: 15px;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px 20px;
-            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px 30px;
+            border-radius: 12px;
+            border: 2px solid rgba(0, 255, 204, 0.3);
+            display: inline-block;
+            align-self: center;
+            text-shadow: 2px 2px 4px #000;
         }
+
         #leaderboard {
-            margin-top: 30px;
-            text-align: left;
-            border-top: 2px solid #333;
-            padding-top: 20px;
+            margin-top: 40px;
+            border-top: 4px solid #333;
+            padding-top: 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
         }
+
         .leaderboard-title {
             color: #ff4757;
             font-weight: bold;
-            font-size: 20px;
-            margin-bottom: 15px;
+            font-size: 32px;
+            margin-bottom: 25px;
             text-align: center;
+            text-shadow: 2px 2px 4px #000;
         }
-        /* Сетка для отображения топа в два столбика */
+
         #leaderboard-list {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px 25px;
+            gap: 15px 40px;
         }
+
         .score-entry {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 7px 15px;
-            border-radius: 8px;
-            border-left: 4px solid #ffcc00;
-            font-size: 18px;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 12px 25px;
+            border-radius: 12px;
+            border-left: 6px solid #ffcc00;
+            font-size: 26px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
+
         .score-entry span:first-child {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            max-width: 260px;
+            max-width: 600px;
         }
+
         .score-entry span:last-child {
             color: #00ffcc;
             font-weight: bold;
@@ -112,14 +134,14 @@
 
     <div id="game-container">
         <div id="category">Загрузка...</div>
+        
         <div id="word-display"></div>
+        
         <div id="instructions">💬 Команды для чата: !б [буква] или !слово [слово]</div>
         
         <div id="leaderboard">
             <div class="leaderboard-title">🏆 ТОП-10 ИГРОКОВ РАУНДА:</div>
-            <div id="leaderboard-list">
-                <!-- Сюда JS будет автоматически в два столбика добавлять игроков -->
-            </div>
+            <div id="leaderboard-list"></div>
         </div>
     </div>
 
@@ -149,7 +171,7 @@
             guessedLetters = [];
             document.getElementById("category").innerText = `Категория: ${currentWordObj.category}`;
             renderWord();
-            updateLeaderboard(); // Очищаем или обновляем при старте
+            updateLeaderboard();
         }
 
         function renderWord() {
@@ -225,7 +247,7 @@
             
             if (sorted.length === 0) {
                 list.style.display = "block";
-                list.innerHTML = '<div style="color: #888; font-style: italic; text-align: center;">Ожидание ходов зрителей...</div>';
+                list.innerHTML = '<div style="color: #888; font-style: italic; font-size: 24px; text-align: center;">Ожидание ходов зрителей...</div>';
                 return;
             }
             
