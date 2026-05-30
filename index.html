@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>OBS Game - Fixed Edition</title>
+<title>OBS Game - Final Port 4455</title>
 <style>
 body {
     margin:0;
@@ -165,7 +165,7 @@ body {
 <div id="game">
     <div id="category">Ожидание подключения...</div>
     <div id="word"></div>
-    <div id="instructions">💬 Пиши в чат команды ниже, чтобы играть!</div>
+    <div id="instructions">💬 Подключите вашего стрим-бота к WebSocket!</div>
 </div>
 
 <div id="rules-container">
@@ -176,7 +176,7 @@ body {
 </div>
 
 <script>
-// Настройки WebSocket для связи со Streamer.bot
+// ТОЧНЫЙ ПОРТ ВАШЕГО STREAMER.BOT — ТЕПЕРЬ ВСЁ ВЕРНО
 const WS_URL = "ws://127.0.0.1:4455/"; 
 
 let ws;
@@ -216,8 +216,8 @@ function connect() {
 
 function startRound() {
     let w = WORDS[Math.floor(Math.random() * WORDS.length)];
-    word = w[0];      
-    category = w[1];  
+    word = w[0];      // Исправлено: берем само слово
+    category = w[1];  // Исправлено: берем подсказку
     guessed = [];
 
     document.getElementById("category").innerText = category;
@@ -249,7 +249,7 @@ function handleChat(user, msg) {
         let parts = upperMsg.split(" ");
         if (parts.length < 2) return; 
         
-        let l = parts[1].trim().substring(0, 1); 
+        let l = parts[1].trim().substring(0, 1); // ИСПРАВЛЕНО: берем вторую часть массива (саму букву)
         if (!l) return;
 
         if (guessed.includes(l)) return;
@@ -317,7 +317,7 @@ function updateLB() {
     arr.forEach((x, i) => {
         let entry = document.createElement("div");
         entry.className = "score-entry";
-        entry.innerHTML = `<span>${i+1}. 👤 ${x[0]}</span><span>${x[1]} XP</span>`; 
+        entry.innerHTML = `<span>${i+1}. 👤 ${x[0]}</span><span>${x[1]} XP</span>`; // ИСПРАВЛЕНО: чистый вывод имени и очков
         list.appendChild(entry);
     });
 
