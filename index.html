@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Игра для OBS - 100% Рабочая версия</title>
+    <title>Игра для OBS - 100 Животных</title>
     <style>
         body {
             margin: 0;
@@ -17,7 +17,7 @@
             position: relative;
         }
 
-        /* ЛЕВАЯ ПАНЕЛЬ: ТОП-10 */
+        /* 1. ЗОНА СЛЕВА: ДЛИННЫЙ ТОП-10 */
         #leaderboard {
             position: absolute;
             left: 40px;
@@ -40,6 +40,13 @@
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 2px;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        #leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .score-entry {
@@ -51,8 +58,7 @@
             border-radius: 12px;
             border-left: 5px solid #ff4757;
             font-size: 20px;
-            margin-bottom: 12px;
-            box-sizing: border-box;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         .score-entry span:last-child {
@@ -60,7 +66,7 @@
             font-weight: bold;
         }
 
-        /* ЦЕНТРАЛЬНАЯ ПАНЕЛЬ: ИГРОВОЕ ПОЛЕ */
+        /* 2. ЗОНА ПО ЦЕНТРУ: ИГРОВОЕ ПОЛЕ */
         #game-container {
             position: absolute;
             left: 50%;
@@ -72,7 +78,7 @@
             border-radius: 25px;
             border: 4px solid #ffcc00;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.85);
-            width: 940px; 
+            width: 960px; 
             box-sizing: border-box;
         }
 
@@ -121,9 +127,10 @@
             background: rgba(0, 0, 0, 0.5);
             padding: 12px 20px;
             border-radius: 10px;
+            text-shadow: 1px 1px 2px #000;
         }
 
-        /* ПРАВАЯ ПАНЕЛЬ: ПРАВИЛА */
+        /* 3. ЗОНА СПРАВА: ПАНЕЛЬ ПРАВИЛ */
         #rules-container {
             position: absolute;
             right: 40px;
@@ -134,7 +141,7 @@
             padding: 40px 25px;
             border-radius: 25px;
             border: 4px solid #00f0ff;
-            box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 35px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 240, 255, 0.2);
             box-sizing: border-box;
         }
 
@@ -146,7 +153,7 @@
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 3px;
-            text-shadow: 2px 2px 4px #000;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.6), 2px 2px 4px #000;
         }
 
         .rule-item {
@@ -157,6 +164,7 @@
             border-left: 6px solid #00f0ff;
             font-size: 24px;
             line-height: 1.6;
+            text-shadow: 1px 1px 2px #000;
         }
         
         .rule-cmd {
@@ -168,129 +176,51 @@
             font-size: 26px;
             display: inline-block;
             margin-top: 5px;
+            border: 1px solid rgba(255,204,0,0.2);
         }
     </style>
 </head>
 <body>
 
-    <!-- ТАБЛИЦА ЛИДЕРОВ -->
+    <!-- ЛЕВАЯ ПАНЕЛЬ: ТОП-10 -->
     <div id="leaderboard">
         <div class="leaderboard-title">🏆 ТОП ИГРОКОВ</div>
         <div id="leaderboard-list"></div>
     </div>
 
-    <!-- ИГРОВОЕ ПОЛЕ -->
+    <!-- ЦЕНТРАЛЬНАЯ ПАНЕЛЬ: ИГРА -->
     <div id="game-container">
-        <div id="category">Категория...</div>
+        <div id="category">Загрузка...</div>
         <div id="word-display"></div>
         <div id="instructions">💬 Пиши в чат команды ниже, чтобы играть!</div>
     </div>
 
-    <!-- ПРАВИЛА -->
+    <!-- ПРАВАЯ ПАНЕЛЬ: ПРАВИЛА ИГРЫ -->
     <div id="rules-container">
         <div class="rules-title">📜 ПРАВИЛА</div>
-        <div class="rule-item">В чате загадано животное. Твоя задача — открыть его быстрее всех!</div>
-        <div class="rule-item">Угадать <b>БУКВУ</b>: <br><span class="rule-cmd">!б [буква]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !б а</small></div>
-        <div class="rule-item">Угадать <b>ВСЁ СЛОВО</b>: <br><span class="rule-cmd">!слово [животное]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !слово жираф</small></div>
+        <div class="rule-item">В чате загадано секретное животное. Открой его быстрее всех!</div>
+        <div class="rule-item">Угадать <b>БУКВУ</b>: <br><span class="rule-cmd">!б [буква]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !б а</small><br><span style="color: #00ffcc; font-size: 20px; font-weight: bold;">🎯 +10 XP</span></div>
+        <div class="rule-item">Угадать <b>ВСЁ СЛОВО</b>: <br><span class="rule-cmd">!слово [слово]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !слово жираф</small><br><span style="color: #00ffcc; font-size: 20px; font-weight: bold;">🔥 +50 XP</span></div>
         <div class="rule-item">Набирай очки и возглавь общий рейтинг стрима!</div>
     </div>
 
-    <!-- Загружаем библиотеку YouTube чата -->
     <script src="https://jsdelivr.net"></script>
 
     <script>
         // ВСТАВЬТЕ СЮДА ID ВАШЕГО СТРИМА ПОСЛЕ НАЧАЛА СТРИМА
         const YOUTUBE_VIDEO_ID = ""; 
 
-        // Стабильный массив слов
+        // 100 СТАБИЛЬНЫХ НАЗВАНИЙ ЖИВОТНЫХ (ИГРА БЕЗ ЗАВИСАНИЙ)
         const WORDS_DATABASE = [
-            { word: "ЖИРАФ", category: "Животное: Саванна" },
-            { word: "ЛЕОПАРД", category: "Животное: Хищник" },
-            { word: "МЕДВЕДЬ", category: "Животное: Лес" },
-            { word: "ОБЕЗЬЯНА", category: "Животное: Джунгли" },
-            { word: "КЕНГУРУ", category: "Животное: Австралия" },
-            { word: "СЛОН", category: "Животное: Саванна" },
-            { word: "ТИГР", category: "Животное: Джунгли" },
-            { word: "ПАНДА", category: "Животное: Китай" },
-            { word: "ВОЛК", category: "Животное: Лес" },
-            { word: "ЛИСА", category: "Животное: Лес" }
-        ];
-
-        let currentWordObj = {};
-        let guessedLetters = [];
-        let scores = {};
-
-        function initNewRound() {
-            currentWordObj = WORDS_DATABASE[Math.floor(Math.random() * WORDS_DATABASE.length)];
-            guessedLetters = [];
-            document.getElementById("category").innerText = `Категория: ${currentWordObj.category}`;
-            renderWord();
-            updateLeaderboard();
-        }
-
-        function renderWord() {
-            const container = document.getElementById("word-display");
-            container.innerHTML = "";
-            for (let char of currentWordObj.word) {
-                const box = document.createElement("div");
-                box.classList.add("letter-box");
-                if (guessedLetters.includes(char)) {
-                    box.innerText = char;
-                } else {
-                    box.classList.add("hidden-letter");
-                    box.innerText = "?";
-                }
-                container.appendChild(box);
-            }
-        }
-
-        function processGameMessage(user, msg) {
-            msg = msg.trim().toUpperCase();
-
-            if (msg.startsWith("!Б ")) {
-                let letter = msg.replace("!Б ", "").trim().substring(0, 1);
-                if (!letter) return;
-
-                if (currentWordObj.word.includes(letter) && !guessedLetters.includes(letter)) {
-                    guessedLetters.push(letter);
-                    scores[user] = (scores[user] || 0) + 10;
-                    renderWord();
-                    updateLeaderboard();
-                    checkWin();
-                }
-            }
-
-            if (msg.startsWith("!СЛОВО ")) {
-                let guessedWord = msg.replace("!СЛОВО ", "").trim();
-                if (guessedWord === currentWordObj.word) {
-                    scores[user] = (scores[user] || 0) + 50;
-                    guessedLetters = currentWordObj.word.split("");
-                    renderWord();
-                    updateLeaderboard();
-                    
-                    document.getElementById("instructions").innerText = `🎉 ${user} угадал животное целиком!`;
-                    setTimeout(() => {
-                        document.getElementById("instructions").innerText = "💬 Пиши в чат команды ниже, чтобы играть!";
-                        initNewRound();
-                    }, 4000);
-                }
-            }
-        }
-
-        function checkWin() {
-            let isWin = true;
-            for (let char of currentWordObj.word) {
-                if (!guessedLetters.includes(char)) isWin = false;
-            }
-            if (isWin) {
-                document.getElementById("instructions").innerText = "🎉 Животное разгадано! Готовим следующее...";
-                setTimeout(() => {
-                    document.getElementById("instructions").innerText = "💬 Пиши в чат команды ниже, чтобы играть!";
-                    initNewRound();
-                }, 4000);
-            }
-        }
-
-        function updateLeaderboard() {
-            const list = document.getElementById("leaderboard-list");
-            list.innerHTML = "";
+            { word: "ЖИРАФ", category: "Животное: Саванна" }, { word: "ЛЕОПАРД", category: "Животное: Хищник" }, { word: "МЕДВЕДЬ", category: "Животное: Лес" }, { word: "ОБЕЗЬЯНА", category: "Животное: Джунгли" }, { word: "КЕНГУРУ", category: "Животное: Австралия" },
+            { word: "СЛОН", category: "Животное: Саванна" }, { word: "ТИГР", category: "Животное: Хищник" }, { word: "ПАНДА", category: "Животное: Азия" }, { word: "ВОЛК", category: "Животное: Хищник" }, { word: "ЛИСА", category: "Животное: Лес" },
+            { word: "ЗАЯЦ", category: "Животное: Лес" }, { word: "БЕГЕМОТ", category: "Животное: Африка" }, { word: "НОСОРОГ", category: "Животное: Африка" }, { word: "ЗЕБРА", category: "Животное: Саванна" }, { word: "ГЕПАРД", category: "Животное: Скорость" },
+            { word: "ГИЕНА", category: "Животное: Саванна" }, { word: "ПУМА", category: "Животное: Хищник" }, { word: "ЯГУАР", category: "Животное: Хищник" }, { word: "РЫСЬ", category: "Животное: Хищник" }, { word: "КАБАН", category: "Животное: Лес" },
+            { word: "ОЛЕНЬ", category: "Животное: Лес" }, { word: "ЛОСЬ", category: "Животное: Лес" }, { word: "КОСУЛЯ", category: "Животное: Лес" }, { word: "ЕНОТ", category: "Животное: Лес" }, { word: "БАРСУК", category: "Животное: Нора" },
+            { word: "КРОТ", category: "Животное: Подземное" }, { word: "БЕЛОЧКА", category: "Животное: Лес" }, { word: "СУСЛИК", category: "Животное: Степь" }, { word: "ЕЖИК", category: "Животное: Колючее" }, { word: "ДИКОБРАЗ", category: "Животное: Иглы" },
+            { word: "СОБАКА", category: "Животное: Домашнее" }, { word: "КОШКА", category: "Животное: Домашнее" }, { word: "ЛОШАДЬ", category: "Животное: Домашнее" }, { word: "КОРОВА", category: "Животное: Домашнее" }, { word: "СВИНЬЯ", category: "Животное: Домашнее" },
+            { word: "БАРАН", category: "Животное: Домашнее" }, { word: "КРОЛИК", category: "Животное: Домашнее" }, { word: "ХОМЯК", category: "Животное: Грызун" }, { word: "ПИНГВИН", category: "Птица: Антарктида" }, { word: "ФЛАМИНГО", category: "Птица: Розовая" },
+            { word: "ПОПУГАЙ", category: "Птица: Экзотика" }, { word: "СТРАУС", category: "Птица: Бегун" }, { word: "ОРЕЛ", category: "Птица: Хищник" }, { word: "СОВА", category: "Птица: Ночная" }, { word: "ЛЕБЕДЬ", category: "Птица: Водоем" },
+            { word: "АКУЛА", category: "Рыба: Хищник" }, { word: "ДЕЛЬФИН", category: "Море / Океан" }, { word: "КИТ", category: "Морской гигант" }, { word: "ОСЬМИНОГ", category: "Море / Океан" }, { word: "КРОКОДИЛ", category: "Рептилия" },
+            { word: "ЧЕРЕПАХА", category: "Рептилия" }, { word: "ЗМЕЯ", category: "Рептилия" }, { word: "ЛЯГУШКА", category: "Земноводное" }, { word: "ПАУК", category: "Насекомое" }, { word: "БАБОЧКА", category: "Насекомое" },
+            { word: "БЕЛОХВОСТ", category: "Животное: Олень" }, { word: "ГОРНОСТАЙ", category: "Животное: Мех" }, { word: "КУНИЦА", category: "Животное: Лес" }, { word: "ХОРЕК", category: "Животное: Шустрый" }, { word: "ВЫДРА", category: "Животное: Река" },
