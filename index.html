@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>OBS Game - Professional WebSocket Edition</title>
+<title>OBS Game - Fixed Edition</title>
 <style>
 body {
     margin:0;
@@ -165,7 +165,7 @@ body {
 <div id="game">
     <div id="category">Ожидание подключения...</div>
     <div id="word"></div>
-    <div id="instructions">💬 Подключите вашего стрим-бота к WebSocket!</div>
+    <div id="instructions">💬 Пиши в чат команды ниже, чтобы играть!</div>
 </div>
 
 <div id="rules-container">
@@ -176,8 +176,8 @@ body {
 </div>
 
 <script>
-// Порт 8080 — именно он указан на вашем скриншоте в Streamer.bot
-const WS_URL = "ws://127.0.0.1:8080/"; 
+// Настройки WebSocket для связи со Streamer.bot
+const WS_URL = "ws://127.0.0.1:4455/"; 
 
 let ws;
 let word = "";
@@ -202,11 +202,7 @@ function connect() {
     ws.onmessage = (msg) => {
         try {
             let data = JSON.parse(msg.data);
-            
-            // Чтение сообщений из Streamer.bot
-            if (data.event && data.event.type === "ChatMessage") {
-                handleChat(data.data.message.username, data.data.message.message);
-            } else if (data.event === "chat") {
+            if (data.event === "chat" && data.user && data.message) {
                 handleChat(data.user, data.message);
             }
         } catch(e){}
