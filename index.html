@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Авто-тест игры для OBS</title>
+    <title>Интерактивная игра для OBS</title>
     <style>
         body {
             margin: 0;
@@ -99,17 +99,26 @@
         <div id="category">Категория: Загрузка...</div>
         <div id="word-display"></div>
         
-        <div id="instructions">🤖 Режим авто-теста запущен. Роботы отгадывают буквы...</div>
+        <div id="instructions">💬 Команды для чата: !б [буква] или !слово [слово]</div>
         
         <div id="leaderboard">
             <div style="color: #ff4757; font-weight: bold; margin-bottom: 10px;">🏆 ТОП ИГРОКОВ РАУНДА:</div>
             <div id="leaderboard-list">
-                <div style="color: #888; font-style: italic;">Ожидание ходов ботов...</div>
+                <div style="color: #888; font-style: italic;">Здесь появится топ угадавших зрителей...</div>
             </div>
         </div>
     </div>
 
+    <!-- Подключаем официальную библиотеку для чтения чата YouTube -->
+    <script src="https://jsdelivr.net"></script>
+
     <script>
+        // =========================================================================
+        // ⚙️ СВЯЗЬ С ВАШИМ СТРИМОМ (ВСТАВЬТЕ СЮДА ID ВАШЕЙ ТРАНСЛЯЦИИ)
+        // =========================================================================
+        const YOUTUBE_VIDEO_ID = ""; 
+
+        // База слов для игры
         const WORDS_DATABASE = [
             { word: "АРБУЗ", category: "Еда / Ягода" },
             { word: "СТРИМЕР", category: "Профессия / Занятие" },
@@ -150,6 +159,7 @@
         function processGameMessage(user, msg) {
             msg = msg.trim().toUpperCase();
 
+            // Логика для букв (!б а)
             if (msg.startsWith("!Б ")) {
                 let letter = msg.replace("!Б ", "").trim().substring(0, 1);
                 if (!letter) return;
@@ -162,6 +172,23 @@
                     checkWin();
                 }
             }
+
+            // Логика для целого слова (!слово арбуз)
+            if (msg.startsWith("!СЛОВО ")) {
+                let guessedWord = msg.replace("!СЛОВО ", "").trim();
+                if (guessedWord === currentWordObj.word) {
+                    scores[user] = (scores[user] || 0) + 50;
+                    guessedLetters = currentWordObj.word.split("");
+                    renderWord();
+                    updateLeaderboard();
+                    
+                    document.getElementById("instructions").innerText = `🎉 Игрок ${user} угадал слово целиком! (+50 XP)`;
+                    setTimeout(() => {
+                        document.getElementById("instructions").innerText = "💬 Команды для чата: !б [буква] или !слово [слово]";
+                        initNewRound();
+                    }, 4000);
+                }
+            }
         }
 
         function checkWin() {
@@ -170,11 +197,11 @@
                 if (!guessedLetters.includes(char)) isWin = false;
             }
             if (isWin) {
-                document.getElementById("instructions").innerText = "🎉 Слово полностью угадано! Следующий раунд через 3 сек...";
+                document.getElementById("instructions").innerText = "🎉 Слово полностью разгадано! Следующий раунд...";
                 setTimeout(() => {
-                    document.getElementById("instructions").innerText = "🤖 Режим авто-теста запущен. Роботы отгадывают буквы...";
+                    document.getElementById("instructions").innerText = "💬 Команды для чата: !б [буква] или !слово [слово]";
                     initNewRound();
-                }, 3000);
+                }, 4000);
             }
         }
 
@@ -191,21 +218,37 @@
             });
         }
 
-        // --- СИСТЕМА АВТОМАТИЧЕСКОГО ТЕСТИРОВАНИЯ ---
-        const testBots = ["Михаил", "Елена", "Дмитрий", "Анна", "Алексей"];
-        const alphabet = "АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+        // Подключение чата YouTube
+        function startChatListener() {
+            if (!YOUTUBE_VIDEO_ID) {
+                console.log("Игра запущена в режиме ожидания стрима.");
+                return;
+            }
 
-        setInterval(() => {
-            // Выбираем случайного бота и случайную букву алфавита
-            let randomBot = testBots[Math.floor(Math.random() * testBots.length)];
-            let randomLetter = alphabet[Math.floor(Math.random() * alphabet.length)].toLowerCase();
-            
-            // Имитируем сообщение из чата
-            processGameMessage(randomBot, `!б ${randomLetter}`);
-        }, 4000); // Каждые 4 секунды бот будет пробовать угадать букву
+            try {
+                const liveChat = new YouTubeChat.LiveChat({ liveId: YOUTUBE_VIDEO_ID });
+
+                liveChat.on("chat", (chatItem) => {
+                    if (chatItem && chatItem.author && chatItem.message) {
+                        const user = chatItem.author.name;
+                        const message = chatItem.message.map(m => m.text || "").join("");
+                        processGameMessage(user, message);
+                    }
+                });
+
+                liveChat.start()
+                    .then(() => {
+                        document.getElementById("instructions").innerText = "📡 Игра успешно подключена к чату стрима!";
+                    })
+                    .catch(err => console.error("Ошибка подключения к чату:", err));
+            } catch (e) {
+                console.error("Критическая ошибка модуля чата:", e);
+            }
+        }
 
         // Старт игры
         initNewRound();
+        startChatListener();
     </script>
 </body>
 </html>
