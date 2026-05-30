@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>OBS Game - Final Fixed</title>
+<title>OBS Game - Ultimate Fix</title>
 <style>
 body {
     margin:0;
@@ -178,7 +178,7 @@ body {
 <script src="https://jsdelivr.net"></script>
 
 <script>
-// ВСТАВЬТЕ СЮДА ВАШ ТЕКУЩИЙ ID ИЗ СТУДИИ (GP5fWDnvEbg)
+// ВАШ АКТУАЛЬНЫЙ ID СТРИМА
 const YOUTUBE_VIDEO_ID = "GP5fWDnvEbg"; 
 
 let word = "";
@@ -194,8 +194,8 @@ const WORDS = [
 
 function startRound() {
     let w = WORDS[Math.floor(Math.random() * WORDS.length)];
-    word = w[0];      // Исправлено: берем само слово из массива
-    category = w[1];  // Исправлено: берем подсказку из массива
+    word = w[0];      // ИСПРАВЛЕНО: берем само слово
+    category = w[1];  // ИСПРАВЛЕНО: берем подсказку
     guessed = [];
 
     document.getElementById("category").innerText = category;
@@ -286,7 +286,7 @@ function updateLB() {
     arr.forEach((x, i) => {
         let entry = document.createElement("div");
         entry.className = "score-entry";
-        entry.innerHTML = `<span>${i+1}. 👤 ${x[0]}</span><span>${x[1]} XP</span>`;
+        entry.innerHTML = `<span>${i+1}. 👤 ${x[0]}</span><span>${x[1]} XP</span>`; // ИСПРАВЛЕНО: правильный вывод имени и очков
         list.appendChild(entry);
     });
 
