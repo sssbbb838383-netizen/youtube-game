@@ -15,8 +15,6 @@ body {
     box-sizing: border-box;
     position: relative;
 }
-
-/* ЛЕВАЯ ПАНЕЛЬ: ТОП-10 */
 #leaderboard {
     position: absolute;
     left: 40px;
@@ -30,7 +28,6 @@ body {
     box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
     box-sizing: border-box;
 }
-
 .leaderboard-title {
     color: #ff4757;
     font-weight: bold;
@@ -40,13 +37,11 @@ body {
     text-transform: uppercase;
     letter-spacing: 2px;
 }
-
 #lb {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
-
 .score-entry {
     display: flex;
     justify-content: space-between;
@@ -57,13 +52,10 @@ body {
     border-left: 5px solid #ff4757;
     font-size: 20px;
 }
-
 .score-entry span:last-child {
     color: #00ffcc;
     font-weight: bold;
 }
-
-/* ЦЕНТРАЛЬНАЯ ПАНЕЛЬ: ИГРА */
 #game {
     position: absolute;
     left: 50%;
@@ -78,7 +70,6 @@ body {
     width: 960px; 
     box-sizing: border-box;
 }
-
 #category {
     font-size: 38px; 
     color: #ffcc00;
@@ -86,7 +77,6 @@ body {
     text-transform: uppercase;
     letter-spacing: 2px;
 }
-
 #word {
     display: flex;
     justify-content: center;
@@ -95,7 +85,6 @@ body {
     flex-wrap: wrap;
     min-height: 75px;
 }
-
 .letter {
     width: 65px;
     height: 75px;
@@ -110,14 +99,12 @@ body {
     box-shadow: 0 6px 0 #b3b3b3;
     text-transform: uppercase;
 }
-
 .hidden {
     background: #252836 !important;
     color: #00ffcc !important; 
     border: 2px solid #45495e;
     box-shadow: inset 0 0 10px #000;
 }
-
 #instructions {
     font-size: 20px;
     color: #00ffcc;
@@ -125,8 +112,6 @@ body {
     padding: 12px 20px;
     border-radius: 10px;
 }
-
-/* ПРАВАЯ ПАНЕЛЬ: ПРАВИЛА */
 #rules-container {
     position: absolute;
     right: 40px;
@@ -140,7 +125,6 @@ body {
     box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
     box-sizing: border-box;
 }
-
 .rules-title {
     color: #00f0ff;
     font-weight: bold;
@@ -150,7 +134,6 @@ body {
     text-transform: uppercase;
     letter-spacing: 3px;
 }
-
 .rule-item {
     background: rgba(255, 255, 255, 0.04);
     padding: 24px;
@@ -160,7 +143,6 @@ body {
     font-size: 24px;
     line-height: 1.6;
 }
-
 .rule-cmd {
     color: #ffcc00;
     font-weight: bold;
@@ -194,8 +176,8 @@ body {
 </div>
 
 <script>
-// Порт 4455 — стандартный порт WebSocket в Streamer.bot
-const WS_URL = "ws://127.0.0.1:4455/"; 
+// Порт 8080 — именно он указан на вашем скриншоте в Streamer.bot
+const WS_URL = "ws://127.0.0.1:8080/"; 
 
 let ws;
 let word = "";
@@ -203,7 +185,6 @@ let guessed = [];
 let scores = {};
 let category = "";
 
-// Чистая база из 15 животных
 const WORDS = [
     ["ЖИРАФ", "Животное: Саванна"], ["ЛЕОПАРД", "Животное: Хищник"], ["МЕДВЕДЬ", "Животное: Лес"], ["ОБЕЗЬЯНА", "Животное: Джунгли"], ["КЕНГУРУ", "Животное: Австралия"],
     ["СЛОН", "Животное: Саванна"], ["ТИГР", "Животное: Хищник"], ["ПАНДА", "Животное: Азия"], ["ВОЛК", "Животное: Хищник"], ["ЛИСА", "Животное: Лес"],
@@ -222,7 +203,7 @@ function connect() {
         try {
             let data = JSON.parse(msg.data);
             
-            // Защита и чтение сообщений из Streamer.bot
+            // Чтение сообщений из Streamer.bot
             if (data.event && data.event.type === "ChatMessage") {
                 handleChat(data.data.message.username, data.data.message.message);
             } else if (data.event === "chat") {
@@ -239,8 +220,8 @@ function connect() {
 
 function startRound() {
     let w = WORDS[Math.floor(Math.random() * WORDS.length)];
-    word = w[0];      // Берем само слово
-    category = w[1];  // Берем подсказку
+    word = w[0];      
+    category = w[1];  
     guessed = [];
 
     document.getElementById("category").innerText = category;
@@ -269,10 +250,10 @@ function handleChat(user, msg) {
     let upperMsg = msg.toUpperCase().trim();
 
     if (upperMsg.startsWith("!Б")) {
-        let parts = msg.split(" ");
+        let parts = upperMsg.split(" ");
         if (parts.length < 2) return; 
         
-        let l = parts[1].toUpperCase().trim().substring(0, 1); // ИСПРАВЛЕНО: берем строго букву из чата
+        let l = parts[1].trim().substring(0, 1); 
         if (!l) return;
 
         if (guessed.includes(l)) return;
@@ -340,7 +321,7 @@ function updateLB() {
     arr.forEach((x, i) => {
         let entry = document.createElement("div");
         entry.className = "score-entry";
-        entry.innerHTML = `<span>${i+1}. 👤 ${x[0]}</span><span>${x[1]} XP</span>`; // ИСПРАВЛЕНО: корректный вывод имени игрока
+        entry.innerHTML = `<span>${i+1}. 👤 ${x[0]}</span><span>${x[1]} XP</span>`; 
         list.appendChild(entry);
     });
 
