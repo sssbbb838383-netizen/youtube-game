@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Игра для OBS - 100 Животных Финал</title>
+    <title>Интерфейс игры</title>
     <style>
         body {
             margin: 0;
@@ -17,7 +17,7 @@
             position: relative;
         }
 
-        /* 1. ЛЕВАЯ ПАНЕЛЬ: ТОП-10 */
+        /* ЛЕВАЯ ПАНЕЛЬ: ТОП-10 */
         #leaderboard {
             position: absolute;
             left: 40px;
@@ -43,30 +43,7 @@
             text-shadow: 2px 2px 4px #000;
         }
 
-        #leaderboard-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .score-entry {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 12px 18px;
-            border-radius: 12px;
-            border-left: 5px solid #ff4757;
-            font-size: 20px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-
-        .score-entry span:last-child {
-            color: #00ffcc;
-            font-weight: bold;
-        }
-
-        /* 2. ЦЕНТРАЛЬНАЯ ПАНЕЛЬ: ИГРОВОЕ ПОЛЕ */
+        /* ЦЕНТРАЛЬНАЯ ПАНЕЛЬ: ЖЕЛТАЯ РАМКА ДЛЯ СЛОВА */
         #game-container {
             position: absolute;
             left: 50%;
@@ -79,58 +56,11 @@
             border: 4px solid #ffcc00;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.85);
             width: 960px; 
+            height: 300px; /* Пустая фиксированная рамка */
             box-sizing: border-box;
         }
 
-        #category {
-            font-size: 38px; 
-            color: #ffcc00;
-            margin-bottom: 30px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 2px 2px 4px #000;
-        }
-
-        #word-display {
-            display: flex;
-            justify-content: center;
-            gap: 14px;
-            margin-bottom: 35px;
-            flex-wrap: wrap;
-        }
-
-        .letter-box {
-            width: 65px;
-            height: 75px;
-            background: #ffffff;
-            color: #111111;
-            font-size: 46px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-            box-shadow: 0 6px 0 #b3b3b3;
-            text-transform: uppercase;
-        }
-
-        .hidden-letter {
-            background: #252836 !important;
-            color: #252836 !important;
-            border: 2px solid #45495e;
-            box-shadow: inset 0 0 10px #000;
-        }
-
-        #instructions {
-            font-size: 20px;
-            color: #00ffcc;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 12px 20px;
-            border-radius: 10px;
-            text-shadow: 1px 1px 2px #000;
-        }
-
-        /* 3. ПРАВАЯ ПАНЕЛЬ: ПРАВИЛА ИГРЫ */
+        /* ПРАВАЯ ПАНЕЛЬ: ПРАВИЛА ИГРЫ */
         #rules-container {
             position: absolute;
             right: 40px;
@@ -176,58 +106,25 @@
             font-size: 26px;
             display: inline-block;
             margin-top: 5px;
-            border: 1px solid rgba(255,204,0,0.2);
-        }
-
-        /* СКРЫТЫЙ СТРИМ-МОСТ ДЛЯ ЧАТА */
-        #chat-bridge {
-            display: none;
         }
     </style>
 </head>
 <body>
 
-    <!-- ЛЕВАЯ ПАНЕЛЬ -->
     <div id="leaderboard">
         <div class="leaderboard-title">🏆 ТОП ИГРОКОВ</div>
-        <div id="leaderboard-list"></div>
     </div>
 
-    <!-- ЦЕНТРАЛЬНАЯ ПАНЕЛЬ -->
     <div id="game-container">
-        <div id="category">Загрузка...</div>
-        <div id="word-display"></div>
-        <div id="instructions">💬 Ждем команды зрителей из чата!</div>
+        <!-- Рамка пустая, сюда мы положим буквы -->
     </div>
 
-    <!-- ПРАВАЯ ПАНЕЛЬ -->
     <div id="rules-container">
         <div class="rules-title">📜 ПРАВИЛА</div>
         <div class="rule-item">В чате загадано секретное животное. Открой его быстрее всех!</div>
-        <div class="rule-item">Угадать <b>БУКВУ</b>: <br><span class="rule-cmd">!б [буква]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !б а</small><br><span style="color: #00ffcc; font-size: 20px; font-weight: bold;">🎯 +10 XP</span></div>
-        <div class="rule-item">Угадать <b>ВСЁ СЛОВО</b>: <br><span class="rule-cmd">!слово [слово]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !слово жираф</small><br><span style="color: #00ffcc; font-size: 20px; font-weight: bold;">🔥 +50 XP</span></div>
-        <div class="rule-item">Набирай очки и возглавь общий рейтинг стрима!</div>
+        <div class="rule-item">Угадать <b>БУКВУ</b>: <br><span class="rule-cmd">!б [буква]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !б а</small></div>
+        <div class="rule-item">Угадать <b>ВСЁ СЛОВО</b>: <br><span class="rule-cmd">!слово [слово]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !слово жираф</small></div>
     </div>
 
-    <!-- Скрытый фрейм, который будет безопасно читать чат на фоне -->
-    <iframe id="chat-bridge" src=""></iframe>
-
-    <script>
-        // =========================================================================
-        // ⚙️ СВЯЗЬ С ВАШИМ СТРИМОМ (ВСТАВЬТЕ ID ТРАНСЛЯЦИИ В КАВЫЧКИ ПЕРЕД ЭФИРОМ)
-        // =========================================================================
-        const YOUTUBE_VIDEO_ID = ""; 
-
-        // 🦁 ИДЕАЛЬНАЯ И ЛЕГКАЯ БАЗА ИЗ 100 ЖИВОТНЫХ
-        const WORDS_DATABASE = [
-            { word: "ЖИРАФ", category: "Животное: Саванна" }, { word: "ЛЕОПАРД", category: "Животное: Хищник" }, { word: "МЕДВЕДЬ", category: "Животное: Лес" }, { word: "ОБЕЗЬЯНА", category: "Животное: Джунгли" }, { word: "КЕНГУРУ", category: "Животное: Австралия" },
-            { word: "СЛОН", category: "Животное: Саванна" }, { word: "ТИГР", category: "Животное: Хищник" }, { word: "ПАНДА", category: "Животное: Азия" }, { word: "ВОЛК", category: "Животное: Хищник" }, { word: "ЛИСА", category: "Животное: Лес" },
-            { word: "ЗАЯЦ", category: "Животное: Лес" }, { word: "БЕГЕМОТ", category: "Животное: Река" }, { word: "НОСОРОГ", category: "Животное: Африка" }, { word: "ЗЕБРА", category: "Животное: Саванна" }, { word: "ГЕПАРД", category: "Животное: Скорость" },
-            { word: "ГИЕНА", category: "Животное: Саванна" }, { word: "ПУМА", category: "Животное: Хищник" }, { word: "ЯГУАР", category: "Животное: Хищник" }, { word: "РЫСЬ", category: "Животное: Хищник" }, { word: "КАБАН", category: "Животное: Лес" },
-            { word: "ОЛЕНЬ", category: "Животное: Лес" }, { word: "ЛОСЬ", category: "Животное: Лес" }, { word: "КОСУЛЯ", category: "Животное: Лес" }, { word: "ЕНОТ", category: "Животное: Лес" }, { word: "БАРСУК", category: "Животное: Нора" },
-            { word: "КРОТ", category: "Животное: Подземное" }, { word: "БЕЛОЧКА", category: "Животное: Лес" }, { word: "СУСЛИК", category: "Животное: Степь" }, { word: "ЕЖИК", category: "Животное: Колючее" }, { word: "ДИКОБРАЗ", category: "Животное: Иглы" },
-            { word: "СОБАКА", category: "Животное: Домашнее" }, { word: "КОШКА", category: "Животное: Домашнее" }, { word: "ЛОШАДЬ", category: "Животное: Домашнее" }, { word: "КОРОВА", category: "Животное: Домашнее" }, { word: "СВИНЬЯ", category: "Животное: Домашнее" },
-            { word: "БАРАН", category: "Животное: Домашнее" }, { word: "КРОЛИК", category: "Животное: Домашнее" }, { word: "ХОМЯК", category: "Животное: Грызун" }, { word: "ПИНГВИН", category: "Птица: Антарктида" }, { word: "ФЛАМИНГО", category: "Птица: Розовая" },
-            { word: "ПОПУГАЙ", category: "Птица: Экзотика" }, { word: "СТРАУС", category: "Птица: Бегун" }, { word: "ОРЕЛ", category: "Птица: Хищник" }, { word: "СОВА", category: "Птица: Ночная" }, { word: "ЛЕБЕДЬ", category: "Птица: Водоем" },
-            { word: "АКУЛА", category: "Рыба: Хищник" }, { word: "ДЕЛЬФИН", category: "Море / Океан" }, { word: "КИТ", category: "Морской гигант" }, { word: "ОСЬМИНОГ", category: "Море / Океан" }, { word: "КРОКОДИЛ", category: "Рептилия" },
-            { word: "ЧЕРЕПАХА", category: "Рептилия" }, { word: "ЗМЕЯ", category: "Рептилия" }, { word: "ЛЯГУШКА", category: "Земноводное" }, { word: "ПАУК", category: "Насекомое" }, { word: "БАБОЧКА", category: "Насекомое" },
+</body>
+</html>
