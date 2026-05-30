@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Интерфейс игры</title>
+    <title>Игра для OBS - Рабочая Версия</title>
     <style>
         body {
             margin: 0;
@@ -17,7 +17,7 @@
             position: relative;
         }
 
-        /* ЛЕВАЯ ПАНЕЛЬ: ТОП-10 */
+        /* 1. ЗОНА СЛЕВА: ДЛИННЫЙ ТОП-10 */
         #leaderboard {
             position: absolute;
             left: 40px;
@@ -43,7 +43,30 @@
             text-shadow: 2px 2px 4px #000;
         }
 
-        /* ЦЕНТРАЛЬНАЯ ПАНЕЛЬ: ЖЕЛТАЯ РАМКА ДЛЯ СЛОВА */
+        #leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .score-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px 18px;
+            border-radius: 12px;
+            border-left: 5px solid #ff4757;
+            font-size: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .score-entry span:last-child {
+            color: #00ffcc;
+            font-weight: bold;
+        }
+
+        /* 2. ЗОНА ПО ЦЕНТРУ: ИГРОВОЕ ПОЛЕ */
         #game-container {
             position: absolute;
             left: 50%;
@@ -56,11 +79,58 @@
             border: 4px solid #ffcc00;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.85);
             width: 960px; 
-            height: 300px; /* Пустая фиксированная рамка */
             box-sizing: border-box;
         }
 
-        /* ПРАВАЯ ПАНЕЛЬ: ПРАВИЛА ИГРЫ */
+        #category {
+            font-size: 38px; 
+            color: #ffcc00;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        #word-display {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 35px;
+            flex-wrap: wrap;
+        }
+
+        .letter-box {
+            width: 65px;
+            height: 75px;
+            background: #ffffff;
+            color: #111111;
+            font-size: 46px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            box-shadow: 0 6px 0 #b3b3b3;
+            text-transform: uppercase;
+        }
+
+        .hidden-letter {
+            background: #252836 !important;
+            color: #252836 !important;
+            border: 2px solid #45495e;
+            box-shadow: inset 0 0 10px #000;
+        }
+
+        #instructions {
+            font-size: 20px;
+            color: #00ffcc;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        /* 3. ЗОНА СПРАВА: ПАНЕЛЬ ПРАВИЛ */
         #rules-container {
             position: absolute;
             right: 40px;
@@ -106,25 +176,120 @@
             font-size: 26px;
             display: inline-block;
             margin-top: 5px;
+            border: 1px solid rgba(255,204,0,0.2);
         }
     </style>
 </head>
 <body>
 
+    <!-- ЛЕВАЯ ПАНЕЛЬ: ТОП-10 -->
     <div id="leaderboard">
         <div class="leaderboard-title">🏆 ТОП ИГРОКОВ</div>
+        <div id="leaderboard-list"></div>
     </div>
 
+    <!-- ЦЕНТРАЛЬНАЯ ПАНЕЛЬ: ИГРА -->
     <div id="game-container">
-        <!-- Рамка пустая, сюда мы положим буквы -->
+        <div id="category">Загрузка...</div>
+        <div id="word-display"></div>
+        <div id="instructions">💬 Пиши в чат команды ниже, чтобы играть!</div>
     </div>
 
+    <!-- ПРАВАЯ ПАНЕЛЬ: ПРАВИЛА ИГРЫ -->
     <div id="rules-container">
         <div class="rules-title">📜 ПРАВИЛА</div>
-        <div class="rule-item">В чате загадано секретное животное. Открой его быстрее всех!</div>
-        <div class="rule-item">Угадать <b>БУКВУ</b>: <br><span class="rule-cmd">!б [буква]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !б а</small></div>
-        <div class="rule-item">Угадать <b>ВСЁ СЛОВО</b>: <br><span class="rule-cmd">!слово [слово]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !слово жираф</small></div>
+        <div class="rule-item">В чате загадано секретное животное. Твоя задача — открыть его быстрее всех!</div>
+        <div class="rule-item">Угадать <b>БУКВУ</b>: <br><span class="rule-cmd">!б [буква]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !б а</small><br><span style="color: #00ffcc; font-size: 20px; font-weight: bold;">🎯 +10 XP</span></div>
+        <div class="rule-item">Угадать <b>ВСЁ СЛОВО</b>: <br><span class="rule-cmd">!слово [слово]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !слово жираф</small><br><span style="color: #00ffcc; font-size: 20px; font-weight: bold;">🔥 +50 XP</span></div>
+        <div class="rule-item">Набирай очки и возглавь общий рейтинг стрима!</div>
     </div>
 
-</body>
-</html>
+    <script src="https://jsdelivr.net"></script>
+
+    <script>
+        // ВСТАВЬТЕ СЮДА ID ВАШЕГО СТРИМА ПОСЛЕ НАЧАЛА СТРИМА
+        const YOUTUBE_VIDEO_ID = ""; 
+
+        // ИСКЛЮЧИТЕЛЬНО ЖИВОТНЫЕ (СТАБИЛЬНЫЙ МАССИВ)
+        const WORDS_DATABASE = [
+            { word: "ЖИРАФ", category: "Животное: Саванна" },
+            { word: "ЛЕОПАРД", category: "Животное: Хищник" },
+            { word: "МЕДВЕДЬ", category: "Животное: Лес" },
+            { word: "ОБЕЗЬЯНА", category: "Животное: Джунгли" },
+            { word: "КЕНГУРУ", category: "Животное: Австралия" },
+            { word: "СЛОН", category: "Животное: Саванна" },
+            { word: "ТИГР", category: "Животное: Хищник" },
+            { word: "ПАНДА", category: "Животное: Азия" },
+            { word: "ВОЛК", category: "Животное: Хищник" },
+            { word: "ЛИСА", category: "Животное: Лес" }
+        ];
+
+        let currentWordObj = {};
+        let guessedLetters = [];
+        let scores = {};
+
+        function initNewRound() {
+            currentWordObj = WORDS_DATABASE[Math.floor(Math.random() * WORDS_DATABASE.length)];
+            guessedLetters = [];
+            document.getElementById("category").innerText = `Категория: ${currentWordObj.category}`;
+            renderWord();
+            updateLeaderboard();
+        }
+
+        function renderWord() {
+            const container = document.getElementById("word-display");
+            container.innerHTML = "";
+
+            for (let char of currentWordObj.word) {
+                const box = document.createElement("div");
+                box.classList.add("letter-box");
+
+                if (guessedLetters.includes(char)) {
+                    box.innerText = char;
+                } else {
+                    box.classList.add("hidden-letter");
+                    box.innerText = "?";
+                }
+                container.appendChild(box);
+            }
+        }
+
+        function processGameMessage(user, msg) {
+            msg = msg.trim().toUpperCase();
+
+            if (msg.startsWith("!Б ")) {
+                let letter = msg.replace("!Б ", "").trim().substring(0, 1);
+                if (!letter) return;
+
+                if (currentWordObj.word.includes(letter) && !guessedLetters.includes(letter)) {
+                    guessedLetters.push(letter);
+                    scores[user] = (scores[user] || 0) + 10;
+                    renderWord();
+                    updateLeaderboard();
+                    checkWin();
+                }
+            }
+
+            if (msg.startsWith("!СЛОВО ")) {
+                let guessedWord = msg.replace("!СЛОВО ", "").trim();
+                if (guessedWord === currentWordObj.word) {
+                    scores[user] = (scores[user] || 0) + 50;
+                    guessedLetters = currentWordObj.word.split("");
+                    renderWord();
+                    updateLeaderboard();
+                    
+                    document.getElementById("instructions").innerText = `🎉 ${user} угадал слово целиком!`;
+                    setTimeout(() => {
+                        document.getElementById("instructions").innerText = "💬 Пиши в чат команды ниже, чтобы играть!";
+                        initNewRound();
+                    }, 4000);
+                }
+            }
+        }
+
+        function checkWin() {
+            let isWin = true;
+            for (let char of currentWordObj.word) {
+                if (!guessedLetters.includes(char)) isWin = false;
+            }
+            if (isWin) {
