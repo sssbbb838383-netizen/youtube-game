@@ -2,7 +2,8 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>OBS Game v2</title>
+<title>OBS Game v3</title>
+
 <style>
 body {
     margin:0;
@@ -12,39 +13,39 @@ body {
     color:white;
 }
 
-/* GAME BOX */
+/* GAME */
 #game {
     position:absolute;
     left:50%;
     top:55%;
     transform:translate(-50%,-50%);
-    width:900px;
-    background:rgba(10,10,20,0.85);
+    width:920px;
+    background:rgba(10,10,25,0.88);
     padding:30px;
     border-radius:25px;
     text-align:center;
     border:3px solid gold;
-    box-shadow:0 0 40px black;
+    box-shadow:0 0 50px black;
     transition:0.3s;
 }
 
-/* SHAKE */
 .shake {
-    animation: shake 0.4s;
+    animation:shake 0.35s;
 }
+
 @keyframes shake {
-    0% {transform:translate(-50%,-50%)}
-    25% {transform:translate(-48%,-52%)}
-    50% {transform:translate(-52%,-48%)}
-    75% {transform:translate(-49%,-51%)}
-    100% {transform:translate(-50%,-50%)}
+    0%{transform:translate(-50%,-50%)}
+    25%{transform:translate(-48%,-52%)}
+    50%{transform:translate(-52%,-48%)}
+    75%{transform:translate(-49%,-51%)}
+    100%{transform:translate(-50%,-50%)}
 }
 
 /* CATEGORY */
 #category {
     font-size:34px;
     color:gold;
-    margin-bottom:20px;
+    margin-bottom:15px;
 }
 
 /* WORD */
@@ -53,12 +54,12 @@ body {
     justify-content:center;
     gap:10px;
     flex-wrap:wrap;
-    margin-bottom:20px;
+    margin-bottom:15px;
 }
 
 .letter {
-    width:60px;
-    height:70px;
+    width:62px;
+    height:72px;
     background:white;
     color:black;
     display:flex;
@@ -74,39 +75,55 @@ body {
     color:#222;
 }
 
-/* XP POPUP */
-.xp {
+/* CHAT FEED */
+#chat {
     position:absolute;
-    color:#00ff99;
-    font-size:22px;
-    animation: floatUp 1s forwards;
-}
-
-@keyframes floatUp {
-    0% {opacity:1; transform:translateY(0)}
-    100% {opacity:0; transform:translateY(-80px)}
+    right:30px;
+    bottom:30px;
+    width:320px;
+    height:250px;
+    overflow:hidden;
+    font-size:16px;
+    background:rgba(0,0,0,0.5);
+    padding:10px;
+    border-radius:10px;
 }
 
 /* LEADERBOARD */
-#leaderboard {
+#lb {
     position:absolute;
     left:30px;
     top:30px;
     width:300px;
     background:rgba(0,0,0,0.75);
-    padding:20px;
+    padding:15px;
     border-radius:15px;
     border:2px solid red;
+}
+
+/* XP POP */
+.xp {
+    position:absolute;
+    color:#00ff99;
+    font-size:22px;
+    animation:floatUp 1s forwards;
+}
+
+@keyframes floatUp {
+    0%{opacity:1;transform:translateY(0)}
+    100%{opacity:0;transform:translateY(-90px)}
+}
+
+.leader {
+    color:gold;
 }
 </style>
 </head>
 
 <body>
 
-<div id="leaderboard">
-    <b>🏆 TOP PLAYERS</b>
-    <div id="lb"></div>
-</div>
+<div id="lb"></div>
+<div id="chat"></div>
 
 <div id="game">
     <div id="category">ожидание...</div>
@@ -114,37 +131,47 @@ body {
 </div>
 
 <script>
-const WS = "ws://127.0.0.1:4455/";
+const WS="ws://127.0.0.1:4455/";
 
 let ws;
-let word="", category="";
+let word="",cat="";
 let guessed=[];
 let scores={};
+let streak={};
+let firstSolved=false;
 
-const WORDS = [
- ["ВОЛК","Животное: Лес"],
- ["ЛЕОПАРД","Животное: Хищник"],
- ["ЖИРАФ","Животное: Саванна"],
- ["СЛОН","Животное: Африка"],
- ["ТИГР","Животное: Хищник"]
+const WORDS=[
+["ВОЛК","Животное"],
+["ЛЕОПАРД","Хищник"],
+["ЖИРАФ","Саванна"],
+["СЛОН","Африка"],
+["ТИГР","Хищник"]
 ];
 
-/* AUDIO (no files needed) */
-function beep(freq=500,time=0.08){
+/* AUDIO ENGINE */
+function sound(type){
  const a=new AudioContext();
  const o=a.createOscillator();
  const g=a.createGain();
- o.frequency.value=freq;
+
+ if(type==="hit") o.frequency.value=600;
+ if(type==="win") o.frequency.value=1200;
+ if(type==="fail") o.frequency.value=200;
+ if(type==="combo") o.frequency.value=900;
+
  o.connect(g);g.connect(a.destination);
  o.start();
- g.gain.exponentialRampToValueAtTime(0.0001,a.currentTime+time);
+
+ g.gain.exponentialRampToValueAtTime(0.0001,a.currentTime+0.1);
+
  setTimeout(()=>a.close(),200);
 }
 
+/* WS */
 function connect(){
  ws=new WebSocket(WS);
 
- ws.onopen=()=>startRound();
+ ws.onopen=()=>start();
 
  ws.onmessage=(m)=>{
   try{
@@ -158,96 +185,139 @@ function connect(){
  ws.onclose=()=>setTimeout(connect,2000);
 }
 
-function startRound(){
- let w=WORDS[Math.floor(Math.random()*WORDS.length)];
- word=w[0];
- category=w[1];
+/* ROUND */
+function start(){
+ let r=WORDS[Math.floor(Math.random()*WORDS.length)];
+ word=r[0];
+ cat=r[1];
  guessed=[];
+ firstSolved=false;
 
- document.getElementById("category").innerText=category;
+ document.getElementById("category").innerText=cat;
  render();
 }
 
+/* RENDER */
 function render(){
  let d=document.getElementById("word");
  d.innerHTML="";
 
  for(let c of word){
-  let el=document.createElement("div");
-  el.className="letter";
+  let e=document.createElement("div");
+  e.className="letter";
 
   if(!guessed.includes(c)){
-   el.classList.add("hidden");
-   el.innerText="?";
-  }else{
-   el.innerText=c;
-  }
+   e.classList.add("hidden");
+   e.innerText="?";
+  }else e.innerText=c;
 
-  d.appendChild(el);
+  d.appendChild(e);
  }
 }
 
-function popXP(x,y,text){
+/* CHAT FEED */
+function addChat(u,m){
+ let c=document.getElementById("chat");
+ let e=document.createElement("div");
+ e.innerText=`${u}: ${m}`;
+ c.appendChild(e);
+
+ if(c.children.length>10)
+  c.removeChild(c.firstChild);
+}
+
+/* XP POP */
+function pop(x,y,t){
  let p=document.createElement("div");
  p.className="xp";
- p.innerText=text;
+ p.innerText=t;
  p.style.left=x+"px";
  p.style.top=y+"px";
  document.body.appendChild(p);
- setTimeout(()=>p.remove(),1000);
+ setTimeout(()=>p.remove(),900);
 }
 
-function addScore(u,v){
+/* SCORE */
+function add(u,v){
  scores[u]=(scores[u]||0)+v;
- updateLB();
+ update();
 }
 
-function updateLB(){
+/* LEADERBOARD */
+function update(){
  let arr=Object.entries(scores)
  .sort((a,b)=>b[1]-a[1])
  .slice(0,10);
 
+ let topUser=arr[0]?.[0];
+
  document.getElementById("lb").innerHTML=
+ "<b>🏆 TOP</b><br>"+
  arr.map((x,i)=>
- `${i+1}. ${x[0]} - ${x[1]}`
- ).join("<br>");
+ `<div class="${x[0]===topUser?"leader":""}">
+ ${i+1}. ${x[0]} - ${x[1]}
+ </div>`
+ ).join("");
 }
 
-function handle(user,msg){
- msg=msg.toUpperCase();
+/* HANDLE */
+function handle(u,m){
+ m=m.toUpperCase();
 
- if(msg.startsWith("!Б ")){
-  let l=msg.replace("!Б ","")[0];
+ addChat(u,m);
+
+ if(!streak[u]) streak[u]=0;
+
+ if(m.startsWith("!Б ")){
+  let l=m.replace("!Б ","")[0];
 
   if(word.includes(l)&&!guessed.includes(l)){
    guessed.push(l);
-   addScore(user,10);
-   beep(700);
 
-   popXP(200,300,"+10 XP");
+   streak[u]++;
+   let bonus=streak[u]>=3?10:0;
+
+   add(u,10+bonus);
+
+   sound("hit");
+
+   if(bonus){
+    sound("combo");
+    pop(300,300,"🔥 COMBO +10");
+   } else pop(300,300,"+10 XP");
+
    render();
+  } else {
+   streak[u]=0;
+   sound("fail");
   }
  }
 
- if(msg.startsWith("!СЛОВО ")){
-  let w=msg.replace("!СЛОВО ","");
+ if(m.startsWith("!СЛОВО ")){
+  let w=m.replace("!СЛОВО ","");
 
   if(w===word){
+   if(!firstSolved){
+    add(u,80);
+    pop(300,250,"👑 FIRST SOLVE +80");
+    firstSolved=true;
+   } else add(u,50);
+
    guessed=word.split("");
-   addScore(user,50);
 
-   beep(1000,0.2);
-
-   document.getElementById("game")
-   .classList.add("shake");
+   sound("win");
+   document.getElementById("game").classList.add("shake");
 
    setTimeout(()=>{
-    document.getElementById("game")
-    .classList.remove("shake");
-   },500);
+    document.getElementById("game").classList.remove("shake");
+   },400);
 
-   setTimeout(startRound,2000);
+   setTimeout(start,2500);
+
    render();
+  } else {
+   streak[u]=0;
+   sound("fail");
   }
  }
 }
