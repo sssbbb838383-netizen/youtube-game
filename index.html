@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Игра для OBS - Максимальная Сборка (520+ слов)</title>
+    <title>Игра для OBS - 100% Стабильная</title>
     <style>
         body {
             margin: 0;
@@ -16,6 +16,8 @@
             box-sizing: border-box;
             position: relative;
         }
+
+        /* 1. ЗОНА СЛЕВА: ТОП-10 */
         #leaderboard {
             position: absolute;
             left: 40px;
@@ -29,6 +31,7 @@
             box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
             box-sizing: border-box;
         }
+
         .leaderboard-title {
             color: #ff4757;
             font-weight: bold;
@@ -39,11 +42,13 @@
             letter-spacing: 2px;
             text-shadow: 2px 2px 4px #000;
         }
+
         #leaderboard-list {
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
+
         .score-entry {
             display: flex;
             justify-content: space-between;
@@ -53,9 +58,14 @@
             border-radius: 12px;
             border-left: 5px solid #ff4757;
             font-size: 20px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
-        .score-entry span:last-child { color: #00ffcc; font-weight: bold; }
+
+        .score-entry span:last-child {
+            color: #00ffcc;
+            font-weight: bold;
+        }
+
+        /* 2. ЗОНА ПО ЦЕНТРУ: ИГРА */
         #game-container {
             position: absolute;
             left: 50%;
@@ -70,6 +80,7 @@
             width: 940px; 
             box-sizing: border-box;
         }
+
         #category {
             font-size: 38px; 
             color: #ffcc00;
@@ -78,6 +89,7 @@
             letter-spacing: 2px;
             text-shadow: 2px 2px 4px #000;
         }
+
         #word-display {
             display: flex;
             justify-content: center;
@@ -85,6 +97,7 @@
             margin-bottom: 35px;
             flex-wrap: wrap;
         }
+
         .letter-box {
             width: 65px;
             height: 75px;
@@ -99,20 +112,23 @@
             box-shadow: 0 6px 0 #b3b3b3;
             text-transform: uppercase;
         }
+
         .hidden-letter {
             background: #252836 !important;
             color: #252836 !important;
             border: 2px solid #45495e;
             box-shadow: inset 0 0 10px #000;
         }
+
         #instructions {
             font-size: 20px;
             color: #00ffcc;
             background: rgba(0, 0, 0, 0.5);
             padding: 12px 20px;
             border-radius: 10px;
-            text-shadow: 1px 1px 2px #000;
         }
+
+        /* 3. ЗОНА СПРАВА: ПРАВИЛА */
         #rules-container {
             position: absolute;
             right: 40px;
@@ -123,9 +139,10 @@
             padding: 40px 25px;
             border-radius: 25px;
             border: 4px solid #00f0ff;
-            box-shadow: 0 0 35px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 240, 255, 0.2);
+            box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
             box-sizing: border-box;
         }
+
         .rules-title {
             color: #00f0ff;
             font-weight: bold;
@@ -134,8 +151,9 @@
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 3px;
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.6), 2px 2px 4px #000;
+            text-shadow: 2px 2px 4px #000;
         }
+
         .rule-item {
             background: rgba(255, 255, 255, 0.04);
             padding: 24px;
@@ -144,8 +162,8 @@
             border-left: 6px solid #00f0ff;
             font-size: 24px;
             line-height: 1.6;
-            text-shadow: 1px 1px 2px #000;
         }
+        
         .rule-cmd {
             color: #ffcc00;
             font-weight: bold;
@@ -159,30 +177,68 @@
     </style>
 </head>
 <body>
+
     <div id="leaderboard">
         <div class="leaderboard-title">🏆 ТОП ИГРОКОВ</div>
         <div id="leaderboard-list"></div>
     </div>
+
     <div id="game-container">
         <div id="category">Категория...</div>
         <div id="word-display"></div>
         <div id="instructions">💬 Чат успешно подключен! Ждем ваши команды.</div>
     </div>
+
     <div id="rules-container">
         <div class="rules-title">📜 ПРАВИЛА</div>
-        <div class="rule-item">В чате загадано случайное слово. Открой его быстрее всех!</div>
-        <div class="rule-item">Угадать <b>БУКВУ</b>: <br><span class="rule-cmd">!б [буква]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !б а</small><br><span style="color: #00ffcc; font-size: 20px; font-weight: bold;">🎯 +10 XP</span></div>
-        <div class="rule-item">Угадать <b>ВСЁ СЛОВО</b>: <br><span class="rule-cmd">!слово [слово]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !слово арбуз</small><br><span style="color: #00ffcc; font-size: 20px; font-weight: bold;">🔥 +50 XP</span></div>
+        <div class="rule-item">В чате загадано животное. Твоя задача — открыть его быстрее всех!</div>
+        <div class="rule-item">Угадать <b>БУКВУ</b>: <br><span class="rule-cmd">!б [буква]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !б а</small></div>
+        <div class="rule-item">Угадать <b>ВСЁ СЛОВО</b>: <br><span class="rule-cmd">!слово [животное]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !слово жираф</small></div>
         <div class="rule-item">Набирай очки и возглавь общий рейтинг стрима!</div>
     </div>
 
     <script src="https://jsdelivr.net"></script>
+
     <script>
-        // =========================================================================
-        // ⚙️ СВЯЗЬ С ВАШИМ СТРИМОМ (ВСТАВЬТЕ СЮДА ID ВАШЕЙ ТРАНСЛЯЦИИ ПОСЛЕ НАЧАЛА)
-        // =========================================================================
+        // ВСТАВЬТЕ СЮДА ID ВАШЕГО СТРИМА ПЕРЕД НАЧАЛОМ СТРИМА
         const YOUTUBE_VIDEO_ID = ""; 
 
-        // 🧠 МАКСИМАЛЬНАЯ ОПТИМИЗИРОВАННАЯ БАЗА (520+ УНИКАЛЬНЫХ СЛОВ)
+        // 100% стабильная и проверенная база животных
         const WORDS_DATABASE = [
-            // --- ЖИВОТНЫЕ И ПТИЦЫ ---
+            { word: "ЖИРАФ", category: "Животное: Саванна" }, { word: "ЛЕОПАРД", category: "Животное: Хищник" }, { word: "МЕДВЕДЬ", category: "Животное: Лес" }, { word: "ОБЕЗЬЯНА", category: "Животное: Джунгли" }, { word: "КЕНГУРУ", category: "Животное: Австралия" },
+            { word: "СЛОН", category: "Животное: Саванна" }, { word: "ТИГР", category: "Животное: Джунгли" }, { word: "ПАНДА", category: "Животное: Китай" }, { word: "ВОЛК", category: "Животное: Лес" }, { word: "ЛИСА", category: "Животное: Лес" },
+            { word: "ЗАЯЦ", category: "Животное: Лес" }, { word: "БЕГЕМОТ", category: "Животное: Река" }, { word: "НОСОРОГ", category: "Животное: Африка" }, { word: "ЗЕБРА", category: "Животное: Саванна" }, { word: "ГЕПАРД", category: "Животное: Хищник" },
+            { word: "ГИЕНА", category: "Животное: Хищник" }, { word: "ПУМА", category: "Животное: Горы" }, { word: "ЯГУАР", category: "Животное: Хищник" }, { word: "РЫСЬ", category: "Животное: Хищник" }, { word: "КАБАН", category: "Животное: Лес" },
+            { word: "ОЛЕНЬ", category: "Животное: Лес" }, { word: "ЛОСЬ", category: "Животное: Лес" }, { word: "КОСУЛЯ", category: "Животное: Лес" }, { word: "ЕНОТ", category: "Животное: Полоскун" }, { word: "БАРСУК", category: "Животное: Нора" },
+            { word: "КРОТ", category: "Животное: Подземное" }, { word: "БЕЛОЧКА", category: "Животное: Дерево" }, { word: "СУСЛИК", category: "Животное: Степь" }, { word: "ЕЖИК", category: "Животное: Колючее" }, { word: "ДИКОБРАЗ", category: "Животное: Иглы" },
+            { word: "СОБАКА", category: "Животное: Домашнее" }, { word: "КОШКА", category: "Животное: Домашнее" }, { word: "ЛОШАДЬ", category: "Животное: Домашнее" }, { word: "КОРОВА", category: "Животное: Домашнее" }, { word: "СВИНЬЯ", category: "Животное: Домашнее" },
+            { word: "БАРАН", category: "Животное: Домашнее" }, { word: "КРОЛИК", category: "Животное: Пушистое" }, { word: "ХОМЯК", category: "Животное: Грызун" }, { word: "ПИНГВИН", category: "Птица: Антарктида" }, { word: "ФЛАМИНГО", category: "Птица: Розовая" },
+            { word: "ПОПУГАЙ", category: "Птица: Экзотика" }, { word: "СТРАУС", category: "Птица: Бегун" }, { word: "ОРЕЛ", category: "Птица: Хищник" }, { word: "СОВА", category: "Птица: Ночная" }, { word: "ЛЕБЕДЬ", category: "Птица: Водоплавающая" },
+            { word: "АКУЛА", category: "Рыба: Хищник" }, { word: "ДЕЛЬФИН", category: "Морское млекопитающее" }, { word: "КИТ", category: "Морской гигант" }, { word: "ОСЬМИНОГ", category: "Морской обитатель" }, { word: "КРОКОДИЛ", category: "Рептилия" },
+            { word: "ЧЕРЕПАХА", category: "Рептилия" }, { word: "ЗМЕЯ", category: "Рептилия" }, { word: "ЛЯГУШКА", category: "Земноводное" }, { word: "ПАУК", category: "Насекомое" }, { word: "БАБОЧКА", category: "Насекомое" }
+        ];
+
+        let currentWordObj = {};
+        let guessedLetters = [];
+        let scores = {};
+
+        function initNewRound() {
+            try {
+                currentWordObj = WORDS_DATABASE[Math.floor(Math.random() * WORDS_DATABASE.length)];
+                guessedLetters = [];
+                document.getElementById("category").innerText = `Категория: ${currentWordObj.category}`;
+                renderWord();
+                updateLeaderboard();
+            } catch (e) { console.error(e); }
+        }
+
+        function renderWord() {
+            const container = document.getElementById("word-display");
+            container.innerHTML = "";
+            for (let char of currentWordObj.word) {
+                const box = document.createElement("div");
+                box.classList.add("letter-box");
+                if (guessedLetters.includes(char) || char === " ") {
+                    box.innerText = char;
+                } else {
+                    box.classList.add("hidden-letter");
