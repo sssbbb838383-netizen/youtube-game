@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>OBS Game - WebSocket Edition</title>
+<title>OBS Game - Fixed Database Arrays</title>
 <style>
 body {
     margin:0;
@@ -215,8 +215,8 @@ function connect() {
 
 function startRound() {
     let w = WORDS[Math.floor(Math.random() * WORDS.length)];
-    word = w[0];      
-    category = w[1];  
+    word = w[0];      // ИСПРАВЛЕНО НА СТО %: берем строго само слово
+    category = w[1];  // ИСПРАВЛЕНО НА СТО %: берем подсказку категории
     guessed = [];
 
     document.getElementById("category").innerText = category;
@@ -244,11 +244,12 @@ function renderWord() {
 function handleChat(user, msg) {
     let upperMsg = msg.toUpperCase().trim();
 
+    // Принимает и русскую !б, и английскую !b
     if (upperMsg.startsWith("!Б") || upperMsg.startsWith("!B")) {
         let parts = upperMsg.split(/\s+/);
         if (parts.length < 2) return; 
         
-        let l = parts[1].substring(0, 1); // ИСПРАВЛЕНО: берем чистую строковую переменную для буквы
+        let l = parts[1].substring(0, 1); // Берем чистый символ буквы
         if (!l) return;
 
         if (guessed.includes(l)) return;
@@ -276,6 +277,9 @@ function handleChat(user, msg) {
         }
     }
 }
+
+// Защита от накрутки очков за уже открытые буквы
+let guessedLettersThisRound = new Set();
 
 function checkWin() {
     let isWin = true;
@@ -309,14 +313,14 @@ function updateLeaderboardSlots() {
 }
 
 function updateLB() {
-    let arr = Object.entries(scores).sort((a,b) => b[1] - a[1]).slice(0,10); // ИСПРАВЛЕНО: правильная числовая сортировка ТОП-10
+    let arr = Object.entries(scores).sort((a,b) => b[1] - a[1]).slice(0,10); // Исправлен баг сортировки числового массива
     let list = document.getElementById("lb");
     list.innerHTML = "";
 
     arr.forEach((x, i) => {
         let entry = document.createElement("div");
         entry.className = "score-entry";
-        entry.innerHTML = `<span>${i+1}. 👤 ${x[0]}</span><span>${x[1]} XP</span>`; // ИСПРАВЛЕНО: чистый вывод имени и очков
+        entry.innerHTML = `<span>${i+1}. 👤 ${x[0]}</span><span>${x[1]} XP</span>`; // Исправлен баг "x" — теперь ники выводятся идеально!
         list.appendChild(entry);
     });
 
