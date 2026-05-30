@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Игра для OBS - 100% Стабильная</title>
+    <title>Игра для OBS - 100% Рабочая версия</title>
     <style>
         body {
             margin: 0;
@@ -17,7 +17,7 @@
             position: relative;
         }
 
-        /* 1. ЗОНА СЛЕВА: ТОП-10 */
+        /* ЛЕВАЯ ПАНЕЛЬ: ТОП-10 */
         #leaderboard {
             position: absolute;
             left: 40px;
@@ -40,13 +40,6 @@
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 2px;
-            text-shadow: 2px 2px 4px #000;
-        }
-
-        #leaderboard-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
         }
 
         .score-entry {
@@ -58,6 +51,8 @@
             border-radius: 12px;
             border-left: 5px solid #ff4757;
             font-size: 20px;
+            margin-bottom: 12px;
+            box-sizing: border-box;
         }
 
         .score-entry span:last-child {
@@ -65,7 +60,7 @@
             font-weight: bold;
         }
 
-        /* 2. ЗОНА ПО ЦЕНТРУ: ИГРА */
+        /* ЦЕНТРАЛЬНАЯ ПАНЕЛЬ: ИГРОВОЕ ПОЛЕ */
         #game-container {
             position: absolute;
             left: 50%;
@@ -128,7 +123,7 @@
             border-radius: 10px;
         }
 
-        /* 3. ЗОНА СПРАВА: ПРАВИЛА */
+        /* ПРАВАЯ ПАНЕЛЬ: ПРАВИЛА */
         #rules-container {
             position: absolute;
             right: 40px;
@@ -178,17 +173,20 @@
 </head>
 <body>
 
+    <!-- ТАБЛИЦА ЛИДЕРОВ -->
     <div id="leaderboard">
         <div class="leaderboard-title">🏆 ТОП ИГРОКОВ</div>
         <div id="leaderboard-list"></div>
     </div>
 
+    <!-- ИГРОВОЕ ПОЛЕ -->
     <div id="game-container">
         <div id="category">Категория...</div>
         <div id="word-display"></div>
-        <div id="instructions">💬 Чат успешно подключен! Ждем ваши команды.</div>
+        <div id="instructions">💬 Пиши в чат команды ниже, чтобы играть!</div>
     </div>
 
+    <!-- ПРАВИЛА -->
     <div id="rules-container">
         <div class="rules-title">📜 ПРАВИЛА</div>
         <div class="rule-item">В чате загадано животное. Твоя задача — открыть его быстрее всех!</div>
@@ -197,25 +195,25 @@
         <div class="rule-item">Набирай очки и возглавь общий рейтинг стрима!</div>
     </div>
 
+    <!-- Загружаем библиотеку YouTube чата -->
     <script src="https://jsdelivr.net"></script>
 
     <script>
-        // ВСТАВЬТЕ СЮДА ID ВАШЕГО СТРИМА ПЕРЕД НАЧАЛОМ СТРИМА
+        // ВСТАВЬТЕ СЮДА ID ВАШЕГО СТРИМА ПОСЛЕ НАЧАЛА СТРИМА
         const YOUTUBE_VIDEO_ID = ""; 
 
-        // 100% стабильная и проверенная база животных
+        // Стабильный массив слов
         const WORDS_DATABASE = [
-            { word: "ЖИРАФ", category: "Животное: Саванна" }, { word: "ЛЕОПАРД", category: "Животное: Хищник" }, { word: "МЕДВЕДЬ", category: "Животное: Лес" }, { word: "ОБЕЗЬЯНА", category: "Животное: Джунгли" }, { word: "КЕНГУРУ", category: "Животное: Австралия" },
-            { word: "СЛОН", category: "Животное: Саванна" }, { word: "ТИГР", category: "Животное: Джунгли" }, { word: "ПАНДА", category: "Животное: Китай" }, { word: "ВОЛК", category: "Животное: Лес" }, { word: "ЛИСА", category: "Животное: Лес" },
-            { word: "ЗАЯЦ", category: "Животное: Лес" }, { word: "БЕГЕМОТ", category: "Животное: Река" }, { word: "НОСОРОГ", category: "Животное: Африка" }, { word: "ЗЕБРА", category: "Животное: Саванна" }, { word: "ГЕПАРД", category: "Животное: Хищник" },
-            { word: "ГИЕНА", category: "Животное: Хищник" }, { word: "ПУМА", category: "Животное: Горы" }, { word: "ЯГУАР", category: "Животное: Хищник" }, { word: "РЫСЬ", category: "Животное: Хищник" }, { word: "КАБАН", category: "Животное: Лес" },
-            { word: "ОЛЕНЬ", category: "Животное: Лес" }, { word: "ЛОСЬ", category: "Животное: Лес" }, { word: "КОСУЛЯ", category: "Животное: Лес" }, { word: "ЕНОТ", category: "Животное: Полоскун" }, { word: "БАРСУК", category: "Животное: Нора" },
-            { word: "КРОТ", category: "Животное: Подземное" }, { word: "БЕЛОЧКА", category: "Животное: Дерево" }, { word: "СУСЛИК", category: "Животное: Степь" }, { word: "ЕЖИК", category: "Животное: Колючее" }, { word: "ДИКОБРАЗ", category: "Животное: Иглы" },
-            { word: "СОБАКА", category: "Животное: Домашнее" }, { word: "КОШКА", category: "Животное: Домашнее" }, { word: "ЛОШАДЬ", category: "Животное: Домашнее" }, { word: "КОРОВА", category: "Животное: Домашнее" }, { word: "СВИНЬЯ", category: "Животное: Домашнее" },
-            { word: "БАРАН", category: "Животное: Домашнее" }, { word: "КРОЛИК", category: "Животное: Пушистое" }, { word: "ХОМЯК", category: "Животное: Грызун" }, { word: "ПИНГВИН", category: "Птица: Антарктида" }, { word: "ФЛАМИНГО", category: "Птица: Розовая" },
-            { word: "ПОПУГАЙ", category: "Птица: Экзотика" }, { word: "СТРАУС", category: "Птица: Бегун" }, { word: "ОРЕЛ", category: "Птица: Хищник" }, { word: "СОВА", category: "Птица: Ночная" }, { word: "ЛЕБЕДЬ", category: "Птица: Водоплавающая" },
-            { word: "АКУЛА", category: "Рыба: Хищник" }, { word: "ДЕЛЬФИН", category: "Морское млекопитающее" }, { word: "КИТ", category: "Морской гигант" }, { word: "ОСЬМИНОГ", category: "Морской обитатель" }, { word: "КРОКОДИЛ", category: "Рептилия" },
-            { word: "ЧЕРЕПАХА", category: "Рептилия" }, { word: "ЗМЕЯ", category: "Рептилия" }, { word: "ЛЯГУШКА", category: "Земноводное" }, { word: "ПАУК", category: "Насекомое" }, { word: "БАБОЧКА", category: "Насекомое" }
+            { word: "ЖИРАФ", category: "Животное: Саванна" },
+            { word: "ЛЕОПАРД", category: "Животное: Хищник" },
+            { word: "МЕДВЕДЬ", category: "Животное: Лес" },
+            { word: "ОБЕЗЬЯНА", category: "Животное: Джунгли" },
+            { word: "КЕНГУРУ", category: "Животное: Австралия" },
+            { word: "СЛОН", category: "Животное: Саванна" },
+            { word: "ТИГР", category: "Животное: Джунгли" },
+            { word: "ПАНДА", category: "Животное: Китай" },
+            { word: "ВОЛК", category: "Животное: Лес" },
+            { word: "ЛИСА", category: "Животное: Лес" }
         ];
 
         let currentWordObj = {};
@@ -223,13 +221,11 @@
         let scores = {};
 
         function initNewRound() {
-            try {
-                currentWordObj = WORDS_DATABASE[Math.floor(Math.random() * WORDS_DATABASE.length)];
-                guessedLetters = [];
-                document.getElementById("category").innerText = `Категория: ${currentWordObj.category}`;
-                renderWord();
-                updateLeaderboard();
-            } catch (e) { console.error(e); }
+            currentWordObj = WORDS_DATABASE[Math.floor(Math.random() * WORDS_DATABASE.length)];
+            guessedLetters = [];
+            document.getElementById("category").innerText = `Категория: ${currentWordObj.category}`;
+            renderWord();
+            updateLeaderboard();
         }
 
         function renderWord() {
@@ -238,7 +234,63 @@
             for (let char of currentWordObj.word) {
                 const box = document.createElement("div");
                 box.classList.add("letter-box");
-                if (guessedLetters.includes(char) || char === " ") {
+                if (guessedLetters.includes(char)) {
                     box.innerText = char;
                 } else {
                     box.classList.add("hidden-letter");
+                    box.innerText = "?";
+                }
+                container.appendChild(box);
+            }
+        }
+
+        function processGameMessage(user, msg) {
+            msg = msg.trim().toUpperCase();
+
+            if (msg.startsWith("!Б ")) {
+                let letter = msg.replace("!Б ", "").trim().substring(0, 1);
+                if (!letter) return;
+
+                if (currentWordObj.word.includes(letter) && !guessedLetters.includes(letter)) {
+                    guessedLetters.push(letter);
+                    scores[user] = (scores[user] || 0) + 10;
+                    renderWord();
+                    updateLeaderboard();
+                    checkWin();
+                }
+            }
+
+            if (msg.startsWith("!СЛОВО ")) {
+                let guessedWord = msg.replace("!СЛОВО ", "").trim();
+                if (guessedWord === currentWordObj.word) {
+                    scores[user] = (scores[user] || 0) + 50;
+                    guessedLetters = currentWordObj.word.split("");
+                    renderWord();
+                    updateLeaderboard();
+                    
+                    document.getElementById("instructions").innerText = `🎉 ${user} угадал животное целиком!`;
+                    setTimeout(() => {
+                        document.getElementById("instructions").innerText = "💬 Пиши в чат команды ниже, чтобы играть!";
+                        initNewRound();
+                    }, 4000);
+                }
+            }
+        }
+
+        function checkWin() {
+            let isWin = true;
+            for (let char of currentWordObj.word) {
+                if (!guessedLetters.includes(char)) isWin = false;
+            }
+            if (isWin) {
+                document.getElementById("instructions").innerText = "🎉 Животное разгадано! Готовим следующее...";
+                setTimeout(() => {
+                    document.getElementById("instructions").innerText = "💬 Пиши в чат команды ниже, чтобы играть!";
+                    initNewRound();
+                }, 4000);
+            }
+        }
+
+        function updateLeaderboard() {
+            const list = document.getElementById("leaderboard-list");
+            list.innerHTML = "";
