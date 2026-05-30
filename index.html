@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>OBS Game - Final Fix 8085</title>
+<title>OBS Game - WebSocket Edition</title>
 <style>
 body {
     margin:0;
@@ -165,7 +165,7 @@ body {
 <div id="game">
     <div id="category">Ожидание подключения...</div>
     <div id="word"></div>
-    <div id="instructions">💬 Подключите вашего стрим-бота к WebSocket!</div>
+    <div id="instructions">💬 Пиши в чат команды ниже, чтобы играть!</div>
 </div>
 
 <div id="rules-container">
@@ -176,7 +176,6 @@ body {
 </div>
 
 <script>
-// ПОДКЛЮЧАЕМСЯ СТРОГО К ПОРТУ БОТА 8085
 const WS_URL = "ws://127.0.0.1:8085/"; 
 
 let ws;
@@ -202,7 +201,6 @@ function connect() {
     ws.onmessage = (msg) => {
         try {
             let data = JSON.parse(msg.data);
-            // Принимаем ручной JSON из C# кода
             if (data.event === "chat" && data.user && data.message) {
                 handleChat(data.user, data.message);
             }
@@ -247,10 +245,10 @@ function handleChat(user, msg) {
     let upperMsg = msg.toUpperCase().trim();
 
     if (upperMsg.startsWith("!Б")) {
-        let parts = upperMsg.split(" ");
+        let parts = upperMsg.split(/\s+/); // Разбиваем по любым пробелам
         if (parts.length < 2) return; 
         
-        let l = parts[1].trim().substring(0, 1); 
+        let l = parts[1].substring(0, 1); // Берем строго первый символ после команды !б
         if (!l) return;
 
         if (guessed.includes(l)) return;
