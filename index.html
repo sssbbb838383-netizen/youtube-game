@@ -8,7 +8,7 @@
             margin: 0;
             padding: 0;
             background-color: rgba(0, 0, 0, 0); /* Прозрачный фон для OBS */
-            font-family: 'Montserrat', 'Arial Black', sans-serif;
+            font-family: 'Segoe UI', 'Arial Black', sans-serif;
             color: white;
             overflow: hidden;
             display: flex;
@@ -19,90 +19,70 @@
 
         #game-container {
             text-align: center;
-            background: linear-gradient(135deg, rgba(10, 11, 30, 0.93) 0%, rgba(18, 12, 43, 0.97) 100%);
-            padding: 45px 50px;
-            border-radius: 28px;
+            background: linear-gradient(135deg, rgba(10, 11, 30, 0.95) 0%, rgba(18, 12, 43, 0.98) 100%);
+            padding: 40px 50px;
+            border-radius: 24px;
             border: 3px solid transparent;
             /* Анимированная неоновая рамка */
             border-image: linear-gradient(45deg, #ffcc00, #ff007f, #00f0ff, #ffcc00) 1;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 
                         0 0 30px rgba(255, 0, 127, 0.2),
                         inset 0 0 20px rgba(0, 240, 255, 0.1);
-            width: 900px;
+            width: 850px;
             backdrop-filter: blur(8px);
-            animation: containerGlow 6s infinite alternate;
-        }
-
-        @keyframes containerGlow {
-            0% { box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 20px rgba(255, 0, 127, 0.2); }
-            100% { box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 40px rgba(0, 240, 255, 0.3); }
         }
 
         #category {
-            font-size: 36px;
+            font-size: 34px;
             font-weight: 900;
             color: #ffcc00;
             margin-bottom: 30px;
             text-transform: uppercase;
             text-shadow: 0 0 10px rgba(255, 204, 0, 0.6), 2px 2px 4px #000;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
         }
 
         #word-display {
             display: flex;
             justify-content: center;
-            gap: 14px;
+            gap: 12px;
             margin-bottom: 35px;
             flex-wrap: wrap;
             min-height: 85px;
         }
 
         .letter-box {
-            width: 65px;
-            height: 75px;
+            width: 60px;
+            height: 70px;
             background: linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%);
             color: #0b0c1e;
-            font-size: 44px;
+            font-size: 42px;
             font-weight: 900;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 14px;
+            border-radius: 12px;
             box-shadow: 0 6px 0 #9e9e9e, 0 10px 20px rgba(0,0,0,0.4);
             text-transform: uppercase;
-            transform: rotateX(0deg);
-            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s;
-            text-shadow: none;
+            transition: all 0.3s ease;
         }
 
         .hidden-letter {
-            background: linear-gradient(135deg, #1f2336 0%, #0d0f18 100%);
+            background: linear-gradient(135deg, #1f2336 0%, #0d0f18 100%) !important;
             color: rgba(0,0,0,0) !important;
             border: 2px solid #3b425e;
-            box-shadow: inset 0 6px 12px rgba(0,0,0,0.7), 0 4px 8px rgba(0,0,0,0.3);
-            animation: pulseHidden 3s infinite alternate;
-        }
-
-        @keyframes pulseHidden {
-            0% { border-color: #3b425e; }
-            100% { border-color: #00f0ff; }
+            box-shadow: inset 0 6px 12px rgba(0,0,0,0.7), 0 4px 8px rgba(0,0,0,0.3) !important;
         }
 
         /* Эффект открытия буквы */
         .revealed {
-            animation: flipOpen 0.5s forwards;
             background: linear-gradient(180deg, #00ffcc 0%, #00b395 100%) !important;
             color: #0b0c1e !important;
             box-shadow: 0 6px 0 #00806a, 0 0 15px rgba(0, 255, 204, 0.6) !important;
         }
 
-        @keyframes flipOpen {
-            0% { transform: rotateX(90deg); }
-            100% { transform: rotateX(0deg); }
-        }
-
         #instructions {
-            font-size: 20px;
+            font-size: 19px;
             color: #00f0ff;
             font-weight: bold;
             margin-top: 20px;
@@ -112,12 +92,11 @@
             border: 1px solid rgba(0, 240, 255, 0.2);
             text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
             display: inline-block;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         #leaderboard {
             margin-top: 40px;
-            font-size: 22px;
+            font-size: 21px;
             text-align: left;
             border-top: 2px solid rgba(255, 255, 255, 0.1);
             padding-top: 25px;
@@ -141,18 +120,6 @@
             margin: 8px 0;
             border-radius: 10px;
             border-left: 4px solid #ff007f;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            transition: all 0.3s;
-        }
-
-        .score-entry:hover {
-            background: rgba(255, 255, 255, 0.06);
-            transform: translateX(5px);
-        }
-
-        .score-entry span:first-child {
-            font-weight: bold;
-            letter-spacing: 0.5px;
         }
 
         .score-entry span:last-child {
@@ -161,23 +128,21 @@
             background: rgba(0, 240, 255, 0.15);
             padding: 4px 12px;
             border-radius: 8px;
-            text-shadow: 0 0 5px rgba(0, 240, 255, 0.5);
-            box-shadow: inset 0 0 5px rgba(0, 240, 255, 0.2);
         }
     </style>
 </head>
 <body>
 
     <div id="game-container">
-        <div id="category">Категория: Инициализация матриц...</div>
+        <div id="category">Категория: Инициализация...</div>
         <div id="word-display"></div>
         
         <div id="instructions">💬 Команды для чата: !б [буква] или !слово [слово]</div>
         
         <div id="leaderboard">
-            <div class="leaderboard-title">🏆 ТОП ИГРОКОВ КИБЕР-РАУНДА:</div>
+            <div class="leaderboard-title">🏆 ТОП ИГРОКОВ РАУНДА:</div>
             <div id="leaderboard-list">
-                <div style="color: #6c7289; font-style: italic; text-align: center;">Ожидание подключения к чату YouTube...</div>
+                <div style="color: #6c7289; font-style: italic; text-align: center;">Ожидание ходов зрителей...</div>
             </div>
         </div>
     </div>
@@ -191,7 +156,7 @@
         // =========================================================================
         const YOUTUBE_VIDEO_ID = ""; 
 
-        // 📝 Базовый интеллектуальный массив
+        // 📝 Базовый массив сочных слов
         const BASE_DATABASE = [
             { word: "АРБУЗ", category: "Еда / Ягода" }, { word: "ПЕЛЬМЕНИ", category: "Еда / Блюдо" }, { word: "ШОКОЛАД", category: "Еда / Сладость" }, { word: "ПИЦЦА", category: "Еда / Блюдо" }, { word: "ЛИМОНАД", category: "Напиток" }, { word: "БОРЩ", category: "Еда / Блюдо" },
             { word: "ОБЕЗЬЯНА", category: "Животное" }, { word: "ЖИРАФ", category: "Животное" }, { word: "ПИНГВИН", category: "Птица" }, { word: "КЕНГУРУ", category: "Животное" }, { word: "ТИГР", category: "Животное / Хищник" }, { word: "ПАНДА", category: "Животное" },
@@ -203,20 +168,61 @@
             { word: "ФУТБОЛ", category: "Спорт" }, { word: "ШАХМАТЫ", category: "Настольная игра" }, { word: "БАСКЕТБОЛ", category: "Спорт" }, { word: "ТЕННИС", category: "Спорт" }, { word: "СТРАТЕГИЯ", category: "Жанр игр" }, { word: "ГИТАРА", category: "Музыкальный инструмент" }
         ];
 
-        // Алгоритмический размножитель слов до 1000+ элементов
+        // Безопасный и быстрый генератор на 1000+ слов
         let WORDS_DATABASE = [...BASE_DATABASE];
-        const prefixes = ["СУПЕР", "МАКРО", "МИКРО", "МЕГА", "ГИДРО", "ЭЛЕКТРО", "КВАЗИ", "КИБЕР", "АНТИ", "НЕО", "ТЕХНО", "ПРОТО", "ЭКО", "БИО", "НАНО"];
-        const suffixes = ["ФАНАТ", "МАСТЕР", "ЭКСПЕРТ", "ПРОФИ", "ГИД", "ЦЕНТР", "БОТ", "КЛУБ", "ТРОН", "ПАРК", "МИР", "ЗОНА", "СЕТЬ", "КОД", "ЛАБ"];
+        const prefixes = ["СУПЕР", "МАКРО", "МИКРО", "МЕГА", "ГИДРО", "ЭЛЕКТРО", "КИБЕР", "НЕО", "ТЕХНО", "НАНО"];
+        const suffixes = ["МАСТЕР", "ЭКСПЕРТ", "ПРОФИ", "БОТ", "КЛУБ", "МИР", "ЗОНА", "КОД"];
 
-        BASE_DATABASE.forEach(item => {
-            prefixes.forEach(p => { WORDS_DATABASE.push({ word: p + item.word, category: "Модификация: " + item.category }); });
-            suffixes.forEach(s => { WORDS_DATABASE.push({ word: item.word + s, category: "Вариация: " + item.category }); });
-        });
+        for (let i = 0; i < BASE_DATABASE.length; i++) {
+            let item = BASE_DATABASE[i];
+            prefixes.forEach(p => {
+                WORDS_DATABASE.push({ word: p + item.word, category: "Модификация: " + item.category });
+            });
+            suffixes.forEach(s => {
+                WORDS_DATABASE.push({ word: item.word + s, category: "Вариация: " + item.category });
+            });
+        }
 
         let currentWordObj = {};
         let guessedLetters = [];
         let scores = {};
 
         function initNewRound() {
+            if (WORDS_DATABASE.length === 0) return;
             currentWordObj = WORDS_DATABASE[Math.floor(Math.random() * WORDS_DATABASE.length)];
             guessedLetters = [];
+            document.getElementById("category").innerText = `Категория: ${currentWordObj.category}`;
+            renderWord();
+        }
+
+        function renderWord() {
+            const container = document.getElementById("word-display");
+            container.innerHTML = "";
+
+            for (let char of currentWordObj.word) {
+                const box = document.createElement("div");
+                box.classList.add("letter-box");
+
+                if (guessedLetters.includes(char)) {
+                    box.innerText = char;
+                    box.classList.add("revealed");
+                } else {
+                    box.classList.add("hidden-letter");
+                    box.innerText = "?";
+                }
+                container.appendChild(box);
+            }
+        }
+
+        function processGameMessage(user, msg) {
+            msg = msg.trim().toUpperCase();
+
+            if (msg.startsWith("!Б ")) {
+                let letter = msg.replace("!Б ", "").trim().substring(0, 1);
+                if (!letter) return;
+
+                if (currentWordObj.word.includes(letter) && !guessedLetters.includes(letter)) {
+                    guessedLetters.push(letter);
+                    scores[user] = (scores[user] || 0) + 10;
+                    renderWord();
+                    updateLeaderboard();
