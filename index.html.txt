@@ -1,0 +1,218 @@
+html<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Интерактивная игра для OBS</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: rgba(0, 0, 0, 0); /* Полностью прозрачный фон */
+            font-family: 'Arial', sans-serif;
+            color: white;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #game-container {
+            text-align: center;
+            background: rgba(15, 15, 26, 0.95); /* Темный стильный фон плашки */
+            padding: 40px;
+            border-radius: 20px;
+            border: 4px solid #ffcc00;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+            width: 850px;
+        }
+
+        #category {
+            font-size: 30px;
+            font-weight: bold;
+            color: #ffcc00;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        #word-display {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .letter-box {
+            width: 60px;
+            height: 70px;
+            background: #ffffff;
+            color: #111111;
+            font-size: 40px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            box-shadow: 0 5px 0 #b3b3b3;
+            text-transform: uppercase;
+        }
+
+        .hidden-letter {
+            background: #2a2d3d;
+            color: #2a2d3d; /* Прячем букву */
+            border: 2px solid #4e536b;
+            box-shadow: inset 0 0 10px #000;
+        }
+
+        #instructions {
+            font-size: 18px;
+            color: #00ffcc;
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        #leaderboard {
+            margin-top: 25px;
+            font-size: 20px;
+            text-align: left;
+            border-top: 2px solid #333;
+            padding-top: 15px;
+        }
+
+        .score-entry {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px 12px;
+            margin: 5px 0;
+            border-radius: 6px;
+            border-left: 4px solid #ffcc00;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="category">Категория: Загрузка...</div>
+        <div id="word-display"></div>
+        <div id="instructions">💬 Команды для чата: !б [буква] или !слово [слово]</div>
+        
+        <div id="leaderboard">
+            <div style="color: #ff4757; font-weight: bold; margin-bottom: 10px;">🏆 ТОП ИГРОКОВ:</div>
+            <div id="leaderboard-list">
+                <div style="color: #888;">Здесь появится топ угадавших...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =========================================================================
+        // ⚙️ НАСТРОЙКА ИГРЫ
+        // =========================================================================
+        // Если стрима нет, оставьте пустые кавычки "" — игра все равно запустится для теста!
+        const YOUTUBE_VIDEO_ID = ""; 
+
+        const WORDS_DATABASE = [
+            { word: "АРБУЗ", category: "Ягода или Еда" },
+            { word: "СТРИМЕР", category: "Профессия" },
+            { word: "ОБССТУДИЯ", category: "Программа" },
+            { word: "ПОДПИСЧИК", category: "Человек" }
+        ];
+
+        let currentWordObj = {};
+        let guessedLetters = [];
+        let scores = {};
+
+        // Старт нового раунда
+        function initNewRound() {
+            currentWordObj = WORDS_DATABASE[Math.floor(Math.random() * WORDS_DATABASE.length)];
+            guessedLetters = [];
+            document.getElementById("category").innerText = `Категория: ${currentWordObj.category}`;
+            renderWord();
+        }
+
+        // Показ слова на экране
+        function renderWord() {
+            const container = document.getElementById("word-display");
+            container.innerHTML = "";
+
+            for (let char of currentWordObj.word) {
+                const box = document.createElement("div");
+                box.classList.add("letter-box");
+
+                if (guessedLetters.includes(char)) {
+                    box.innerText = char;
+                } else {
+                    box.classList.add("hidden-letter");
+                    box.innerText = "?";
+                }
+                container.appendChild(box);
+            }
+        }
+
+        // Логика проверки слов
+        function checkIncomingMessage(user, msg) {
+            msg = msg.trim().toUpperCase();
+
+            if (msg.startsWith("!Б ") || msg.startsWith("!БУКВА ")) {
+                let letter = msg.split(" ")[1];
+                if (!letter) return;
+                letter = letter.substring(0, 1);
+
+                if (currentWordObj.word.includes(letter) && !guessedLetters.includes(letter)) {
+                    guessedLetters.push(letter);
+                    scores[user] = (scores[user] || 0) + 10;
+                    renderWord();
+                    updateLeaderboard();
+                    checkWin();
+                }
+            }
+
+            if (msg.startsWith("!СЛОВО ")) {
+                let guessedWord = msg.replace("!СЛОВО ", "").trim();
+                if (guessedWord === currentWordObj.word) {
+                    scores[user] = (scores[user] || 0) + 50;
+                    guessedLetters = currentWordObj.word.split("");
+                    renderWord();
+                    updateLeaderboard();
+                    setTimeout(initNewRound, 4000);
+                }
+            }
+        }
+
+        function checkWin() {
+            let isWin = true;
+            for (let char of currentWordObj.word) {
+                if (!guessedLetters.includes(char)) isWin = false;
+            }
+            if (isWin) setTimeout(initNewRound, 4000);
+        }
+
+        function updateLeaderboard() {
+            const list = document.getElementById("leaderboard-list");
+            list.innerHTML = "";
+            let sorted = Object.entries(scores).sort((a, b) => b - a).slice(0, 5);
+            if(sorted.length === 0) {
+                list.innerHTML = '<div style="color: #888;">Здесь появится топ угадавших...</div>';
+                return;
+            }
+            sorted.forEach(([player, score]) => {
+                const entry = document.createElement("div");
+                entry.classList.add("score-entry");
+                entry.innerHTML = `<span>${player}</span><span style="color:#00ffcc">${score} XP</span>`;
+                list.appendChild(entry);
+            });
+        }
+
+        // Имитация игры прямо в браузере (для тестов без стрима)
+        // Если открыть файл дважды в браузере, можно вводить команды в консоль разработчика (F12 -> checkIncomingMessage('Ник', '!б а'))
+
+        // Запуск интерфейса
+        initNewRound();
+    </script>
+</body>
+</html>
