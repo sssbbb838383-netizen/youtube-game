@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Интерактивная игра для OBS</title>
+    <title>Авто-тест игры для OBS</title>
     <style>
         body {
             margin: 0;
@@ -25,7 +25,6 @@
             border: 4px solid #ffcc00;
             box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
             width: 850px;
-            position: relative;
         }
 
         #category {
@@ -66,37 +65,6 @@
             box-shadow: inset 0 0 10px #000;
         }
 
-        /* ТЕСТОВАЯ ПАНЕЛЬ ТЕПЕРЬ ПО ЦЕНТРУ */
-        #test-panel {
-            background: #222533;
-            padding: 15px;
-            border-radius: 12px;
-            margin: 20px 0;
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            border: 1px solid #444;
-        }
-        #test-panel input {
-            padding: 10px;
-            font-size: 18px;
-            border-radius: 6px;
-            border: 2px solid #ffcc00;
-            width: 180px;
-            background: #fff;
-            color: #000;
-        }
-        #test-panel button {
-            padding: 10px 20px;
-            background: #ffcc00;
-            color: black;
-            border: none;
-            font-weight: bold;
-            font-size: 16px;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
         #instructions {
             font-size: 18px;
             color: #00ffcc;
@@ -131,18 +99,12 @@
         <div id="category">Категория: Загрузка...</div>
         <div id="word-display"></div>
         
-        <!-- НАПРАВО ПО ЦЕНТРУ ИГРЫ -->
-        <div id="test-panel">
-            <input type="text" id="test-input" placeholder="Пример: !б а">
-            <button onclick="sendTestMessage()">Тест буквы / слова</button>
-        </div>
-
-        <div id="instructions">💬 Команды для чата: !б [буква] или !слово [слово]</div>
+        <div id="instructions">🤖 Режим авто-теста запущен. Роботы отгадывают буквы...</div>
         
         <div id="leaderboard">
             <div style="color: #ff4757; font-weight: bold; margin-bottom: 10px;">🏆 ТОП ИГРОКОВ РАУНДА:</div>
             <div id="leaderboard-list">
-                <div style="color: #888; font-style: italic;">Здесь появится топ угадавших...</div>
+                <div style="color: #888; font-style: italic;">Ожидание ходов ботов...</div>
             </div>
         </div>
     </div>
@@ -188,10 +150,9 @@
         function processGameMessage(user, msg) {
             msg = msg.trim().toUpperCase();
 
-            if (msg.startsWith("!Б ") || msg.startsWith("!БУКВА ")) {
-                let letter = msg.replace("!Б ", "").replace("!БУКВА ", "").trim();
+            if (msg.startsWith("!Б ")) {
+                let letter = msg.replace("!Б ", "").trim().substring(0, 1);
                 if (!letter) return;
-                letter = letter.substring(0, 1);
 
                 if (currentWordObj.word.includes(letter) && !guessedLetters.includes(letter)) {
                     guessedLetters.push(letter);
@@ -201,17 +162,6 @@
                     checkWin();
                 }
             }
-
-            if (msg.startsWith("!СЛОВО ")) {
-                let guessedWord = msg.replace("!СЛОВО ", "").trim();
-                if (guessedWord === currentWordObj.word) {
-                    scores[user] = (scores[user] || 0) + 50;
-                    guessedLetters = currentWordObj.word.split("");
-                    renderWord();
-                    updateLeaderboard();
-                    setTimeout(initNewRound, 3000);
-                }
-            }
         }
 
         function checkWin() {
@@ -219,7 +169,13 @@
             for (let char of currentWordObj.word) {
                 if (!guessedLetters.includes(char)) isWin = false;
             }
-            if (isWin) setTimeout(initNewRound, 3000);
+            if (isWin) {
+                document.getElementById("instructions").innerText = "🎉 Слово полностью угадано! Следующий раунд через 3 сек...";
+                setTimeout(() => {
+                    document.getElementById("instructions").innerText = "🤖 Режим авто-теста запущен. Роботы отгадывают буквы...";
+                    initNewRound();
+                }, 3000);
+            }
         }
 
         function updateLeaderboard() {
@@ -235,14 +191,20 @@
             });
         }
 
-        function sendTestMessage() {
-            const input = document.getElementById("test-input");
-            if(input.value) {
-                processGameMessage("ТестЗритель", input.value);
-                input.value = "";
-            }
-        }
+        // --- СИСТЕМА АВТОМАТИЧЕСКОГО ТЕСТИРОВАНИЯ ---
+        const testBots = ["Михаил", "Елена", "Дмитрий", "Анна", "Алексей"];
+        const alphabet = "АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
 
+        setInterval(() => {
+            // Выбираем случайного бота и случайную букву алфавита
+            let randomBot = testBots[Math.floor(Math.random() * testBots.length)];
+            let randomLetter = alphabet[Math.floor(Math.random() * alphabet.length)].toLowerCase();
+            
+            // Имитируем сообщение из чата
+            processGameMessage(randomBot, `!б ${randomLetter}`);
+        }, 4000); // Каждые 4 секунды бот будет пробовать угадать букву
+
+        // Старт игры
         initNewRound();
     </script>
 </body>
