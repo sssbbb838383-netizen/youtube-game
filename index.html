@@ -2,13 +2,13 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Интерактивная игра для OBS - Premium Neon Edition</title>
+    <title>Игра для OBS</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: rgba(0, 0, 0, 0); /* Прозрачный фон для OBS */
-            font-family: 'Segoe UI', 'Arial Black', sans-serif;
+            background: transparent;
+            font-family: 'Arial Black', sans-serif;
             color: white;
             overflow: hidden;
             display: flex;
@@ -16,179 +16,112 @@
             align-items: center;
             height: 100vh;
         }
-
         #game-container {
             text-align: center;
-            background: linear-gradient(135deg, rgba(10, 11, 30, 0.95) 0%, rgba(18, 12, 43, 0.98) 100%);
-            padding: 40px 50px;
-            border-radius: 24px;
-            border: 3px solid transparent;
-            /* Анимированная неоновая рамка */
-            border-image: linear-gradient(45deg, #ffcc00, #ff007f, #00f0ff, #ffcc00) 1;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 
-                        0 0 30px rgba(255, 0, 127, 0.2),
-                        inset 0 0 20px rgba(0, 240, 255, 0.1);
+            background: rgba(15, 16, 28, 0.96);
+            padding: 40px;
+            border-radius: 20px;
+            border: 4px solid #ffcc00;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
             width: 850px;
-            backdrop-filter: blur(8px);
         }
-
         #category {
-            font-size: 34px;
-            font-weight: 900;
+            font-size: 32px;
             color: #ffcc00;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             text-transform: uppercase;
-            text-shadow: 0 0 10px rgba(255, 204, 0, 0.6), 2px 2px 4px #000;
-            letter-spacing: 2px;
         }
-
         #word-display {
             display: flex;
             justify-content: center;
             gap: 12px;
-            margin-bottom: 35px;
+            margin-bottom: 30px;
             flex-wrap: wrap;
-            min-height: 85px;
         }
-
         .letter-box {
             width: 60px;
             height: 70px;
-            background: linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%);
-            color: #0b0c1e;
+            background: #ffffff;
+            color: #111111;
             font-size: 42px;
-            font-weight: 900;
+            font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 12px;
-            box-shadow: 0 6px 0 #9e9e9e, 0 10px 20px rgba(0,0,0,0.4);
+            border-radius: 10px;
+            box-shadow: 0 5px 0 #b3b3b3;
             text-transform: uppercase;
-            transition: all 0.3s ease;
         }
-
         .hidden-letter {
-            background: linear-gradient(135deg, #1f2336 0%, #0d0f18 100%) !important;
-            color: rgba(0,0,0,0) !important;
-            border: 2px solid #3b425e;
-            box-shadow: inset 0 6px 12px rgba(0,0,0,0.7), 0 4px 8px rgba(0,0,0,0.3) !important;
+            background: #252836 !important;
+            color: #252836 !important;
+            border: 2px solid #45495e;
+            box-shadow: inset 0 0 10px #000;
         }
-
-        /* Эффект открытия буквы */
-        .revealed {
-            background: linear-gradient(180deg, #00ffcc 0%, #00b395 100%) !important;
-            color: #0b0c1e !important;
-            box-shadow: 0 6px 0 #00806a, 0 0 15px rgba(0, 255, 204, 0.6) !important;
-        }
-
         #instructions {
-            font-size: 19px;
-            color: #00f0ff;
-            font-weight: bold;
-            margin-top: 20px;
-            background: rgba(0, 240, 255, 0.07);
-            padding: 12px 25px;
-            border-radius: 12px;
-            border: 1px solid rgba(0, 240, 255, 0.2);
-            text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
-            display: inline-block;
+            font-size: 18px;
+            color: #00ffcc;
+            margin-top: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 8px;
         }
-
         #leaderboard {
-            margin-top: 40px;
-            font-size: 21px;
+            margin-top: 25px;
+            font-size: 20px;
             text-align: left;
-            border-top: 2px solid rgba(255, 255, 255, 0.1);
-            padding-top: 25px;
+            border-top: 2px solid #333;
+            padding-top: 15px;
         }
-
-        .leaderboard-title {
-            color: #ff007f;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 15px;
-            text-shadow: 0 0 10px rgba(255, 0, 127, 0.5);
-        }
-
         .score-entry {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.03);
-            padding: 10px 20px;
-            margin: 8px 0;
-            border-radius: 10px;
-            border-left: 4px solid #ff007f;
-        }
-
-        .score-entry span:last-child {
-            color: #00f0ff;
-            font-weight: 900;
-            background: rgba(0, 240, 255, 0.15);
-            padding: 4px 12px;
-            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 6px;
+            border-left: 4px solid #ffcc00;
         }
     </style>
 </head>
 <body>
 
     <div id="game-container">
-        <div id="category">Категория: Инициализация...</div>
+        <div id="category">Загрузка...</div>
         <div id="word-display"></div>
-        
         <div id="instructions">💬 Команды для чата: !б [буква] или !слово [слово]</div>
         
         <div id="leaderboard">
-            <div class="leaderboard-title">🏆 ТОП ИГРОКОВ РАУНДА:</div>
+            <div style="color: #ff4757; font-weight: bold; margin-bottom: 10px;">🏆 ТОП ИГРОКОВ:</div>
             <div id="leaderboard-list">
-                <div style="color: #6c7289; font-style: italic; text-align: center;">Ожидание ходов зрителей...</div>
+                <div style="color: #888; font-style: italic;">Ожидание ходов зрителей...</div>
             </div>
         </div>
     </div>
 
-    <!-- Библиотека чата YouTube -->
     <script src="https://jsdelivr.net"></script>
 
     <script>
-        // =========================================================================
-        // ⚙️ СВЯЗЬ С ВАШИМ СТРИМОМ (ВСТАВЬТЕ СЮДА ID ВАШЕЙ ТРАНСЛЯЦИИ ПОСЛЕ НАЧАЛА)
-        // =========================================================================
+        // ВСТАВЬТЕ СЮДА ID ВАШЕГО СТРИМА ПОСЛЕ НАЧАЛА
         const YOUTUBE_VIDEO_ID = ""; 
 
-        // 📝 Базовый массив сочных слов
-        const BASE_DATABASE = [
-            { word: "АРБУЗ", category: "Еда / Ягода" }, { word: "ПЕЛЬМЕНИ", category: "Еда / Блюдо" }, { word: "ШОКОЛАД", category: "Еда / Сладость" }, { word: "ПИЦЦА", category: "Еда / Блюдо" }, { word: "ЛИМОНАД", category: "Напиток" }, { word: "БОРЩ", category: "Еда / Блюдо" },
-            { word: "ОБЕЗЬЯНА", category: "Животное" }, { word: "ЖИРАФ", category: "Животное" }, { word: "ПИНГВИН", category: "Птица" }, { word: "КЕНГУРУ", category: "Животное" }, { word: "ТИГР", category: "Животное / Хищник" }, { word: "ПАНДА", category: "Животное" },
-            { word: "ПРОГРАММИСТ", category: "Профессия" }, { word: "КОСМОНАВТ", category: "Профессия" }, { word: "БЛОГЕР", category: "Профессия / Занятие" }, { word: "СТРИМЕР", category: "Занятие" }, { word: "УЧИТЕЛЬ", category: "Профессия" }, { word: "ДЕТЕКТИВ", category: "Профессия" },
-            { word: "КОМПЬЮТЕР", category: "Техника / Предмет" }, { word: "НОУТБУК", category: "Техника" }, { word: "ТЕЛЕФОН", category: "Гаджет" }, { word: "НАУШНИКИ", category: "Аксессуар" }, { word: "КЛАВИАТУРА", category: "Устройство ввода" }, { word: "МИКРОФОН", category: "Устройство" },
-            { word: "ГАЛАКТИКА", category: "Космос" }, { word: "ТЕЛЕСКОП", category: "Прибор / Наука" }, { word: "ПЛАНЕТА", category: "Космос" }, { word: "МЕТЕОРИТ", category: "Космос" }, { word: "АСТЕРОИД", category: "Космос" }, { word: "СПУТНИК", category: "Космос / Техника" },
-            { word: "ЭКВАТОР", category: "География" }, { word: "ВУЛКАН", category: "Природа / Геология" }, { word: "ОСТРОВ", category: "География" }, { word: "ВОДОПАД", category: "Природа" }, { word: "МЕГАПОЛИС", category: "Город" }, { word: "АЙСБЕРГ", category: "Природа / Океан" },
-            { word: "МОТОЦИКЛ", category: "Транспорт" }, { word: "ВЕРТОЛЕТ", category: "Авиация" }, { word: "САМОЛЕТ", category: "Авиация" }, { word: "КОРАБЛЬ", category: "Транспорт" }, { word: "ВЕЛОСИПЕД", category: "Транспорт" }, { word: "АВТОБУС", category: "Транспорт" },
-            { word: "ФУТБОЛ", category: "Спорт" }, { word: "ШАХМАТЫ", category: "Настольная игра" }, { word: "БАСКЕТБОЛ", category: "Спорт" }, { word: "ТЕННИС", category: "Спорт" }, { word: "СТРАТЕГИЯ", category: "Жанр игр" }, { word: "ГИТАРА", category: "Музыкальный инструмент" }
+        // Чистая, стабильная база слов (работает мгновенно!)
+        const WORDS_DATABASE = [
+            { word: "АРБУЗ", category: "Еда / Ягода" },
+            { word: "СТРИМЕР", category: "Профессия" },
+            { word: "НОУТБУК", category: "Техника" },
+            { word: "КОСМОС", category: "Наука" },
+            { word: "ПОДПИСЧИК", category: "Человек на стриме" },
+            { word: "ТЕЛЕФОН", category: "Гаджет" },
+            { word: "ФУТБОЛ", category: "Спорт" },
+            { word: "ЖИРАФ", category: "Животное" }
         ];
-
-        // Безопасный и быстрый генератор на 1000+ слов
-        let WORDS_DATABASE = [...BASE_DATABASE];
-        const prefixes = ["СУПЕР", "МАКРО", "МИКРО", "МЕГА", "ГИДРО", "ЭЛЕКТРО", "КИБЕР", "НЕО", "ТЕХНО", "НАНО"];
-        const suffixes = ["МАСТЕР", "ЭКСПЕРТ", "ПРОФИ", "БОТ", "КЛУБ", "МИР", "ЗОНА", "КОД"];
-
-        for (let i = 0; i < BASE_DATABASE.length; i++) {
-            let item = BASE_DATABASE[i];
-            prefixes.forEach(p => {
-                WORDS_DATABASE.push({ word: p + item.word, category: "Модификация: " + item.category });
-            });
-            suffixes.forEach(s => {
-                WORDS_DATABASE.push({ word: item.word + s, category: "Вариация: " + item.category });
-            });
-        }
 
         let currentWordObj = {};
         let guessedLetters = [];
         let scores = {};
 
         function initNewRound() {
-            if (WORDS_DATABASE.length === 0) return;
             currentWordObj = WORDS_DATABASE[Math.floor(Math.random() * WORDS_DATABASE.length)];
             guessedLetters = [];
             document.getElementById("category").innerText = `Категория: ${currentWordObj.category}`;
@@ -205,7 +138,6 @@
 
                 if (guessedLetters.includes(char)) {
                     box.innerText = char;
-                    box.classList.add("revealed");
                 } else {
                     box.classList.add("hidden-letter");
                     box.innerText = "?";
@@ -226,3 +158,71 @@
                     scores[user] = (scores[user] || 0) + 10;
                     renderWord();
                     updateLeaderboard();
+                    checkWin();
+                }
+            }
+
+            if (msg.startsWith("!СЛОВО ")) {
+                let guessedWord = msg.replace("!СЛОВО ", "").trim();
+                if (guessedWord === currentWordObj.word) {
+                    scores[user] = (scores[user] || 0) + 50;
+                    guessedLetters = currentWordObj.word.split("");
+                    renderWord();
+                    updateLeaderboard();
+                    
+                    document.getElementById("instructions").innerText = `🎉 ${user} угадал слово целиком!`;
+                    setTimeout(() => {
+                        document.getElementById("instructions").innerText = "💬 Команды для чата: !б [буква] или !слово [слово]";
+                        initNewRound();
+                    }, 4000);
+                }
+            }
+        }
+
+        function checkWin() {
+            let isWin = true;
+            for (let char of currentWordObj.word) {
+                if (!guessedLetters.includes(char)) isWin = false;
+            }
+            if (isWin) {
+                document.getElementById("instructions").innerText = "🎉 Слово разгадано! Новый раунд...";
+                setTimeout(() => {
+                    document.getElementById("instructions").innerText = "💬 Команды для чата: !б [буква] или !слово [слово]";
+                    initNewRound();
+                }, 4000);
+            }
+        }
+
+        function updateLeaderboard() {
+            const list = document.getElementById("leaderboard-list");
+            list.innerHTML = "";
+            let sorted = Object.entries(scores).sort((a, b) => b - a).slice(0, 5);
+            
+            sorted.forEach(([player, score]) => {
+                const entry = document.createElement("div");
+                entry.classList.add("score-entry");
+                entry.innerHTML = `<span>👤 ${player}</span><span>${score} XP</span>`;
+                list.appendChild(entry);
+            });
+        }
+
+        function startChatListener() {
+            if (!YOUTUBE_VIDEO_ID) return;
+            try {
+                const liveChat = new YouTubeChat.LiveChat({ liveId: YOUTUBE_VIDEO_ID });
+                liveChat.on("chat", (chatItem) => {
+                    if (chatItem && chatItem.author && chatItem.message) {
+                        const user = chatItem.author.name;
+                        const message = chatItem.message.map(m => m.text || "").join("");
+                        processGameMessage(user, message);
+                    }
+                });
+                liveChat.start().catch(err => console.error(err));
+            } catch (e) { console.error(e); }
+        }
+
+        initNewRound();
+        startChatListener();
+    </script>
+</body>
+</html>
