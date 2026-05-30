@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>OBS Game - LIVE NOW</title>
+<title>OBS Game - Professional WebSocket Edition</title>
 <style>
 body {
     margin:0;
@@ -15,6 +15,8 @@ body {
     box-sizing: border-box;
     position: relative;
 }
+
+/* ЛЕВАЯ ПАНЕЛЬ: ТОП-10 */
 #leaderboard {
     position: absolute;
     left: 40px;
@@ -28,6 +30,7 @@ body {
     box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
     box-sizing: border-box;
 }
+
 .leaderboard-title {
     color: #ff4757;
     font-weight: bold;
@@ -37,11 +40,13 @@ body {
     text-transform: uppercase;
     letter-spacing: 2px;
 }
+
 #lb {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
+
 .score-entry {
     display: flex;
     justify-content: space-between;
@@ -52,10 +57,13 @@ body {
     border-left: 5px solid #ff4757;
     font-size: 20px;
 }
+
 .score-entry span:last-child {
     color: #00ffcc;
     font-weight: bold;
 }
+
+/* ЦЕНТРАЛЬНАЯ ПАНЕЛЬ: ИГРА */
 #game {
     position: absolute;
     left: 50%;
@@ -70,6 +78,7 @@ body {
     width: 960px; 
     box-sizing: border-box;
 }
+
 #category {
     font-size: 38px; 
     color: #ffcc00;
@@ -77,6 +86,7 @@ body {
     text-transform: uppercase;
     letter-spacing: 2px;
 }
+
 #word {
     display: flex;
     justify-content: center;
@@ -85,6 +95,7 @@ body {
     flex-wrap: wrap;
     min-height: 75px;
 }
+
 .letter {
     width: 65px;
     height: 75px;
@@ -99,12 +110,14 @@ body {
     box-shadow: 0 6px 0 #b3b3b3;
     text-transform: uppercase;
 }
+
 .hidden {
     background: #252836 !important;
-    color: #252836 !important;
+    color: #00ffcc !important; /* Цвет подсвечивания скрытого символа */
     border: 2px solid #45495e;
     box-shadow: inset 0 0 10px #000;
 }
+
 #instructions {
     font-size: 20px;
     color: #00ffcc;
@@ -112,6 +125,8 @@ body {
     padding: 12px 20px;
     border-radius: 10px;
 }
+
+/* ПРАВАЯ ПАНЕЛЬ: ПРАВИЛА */
 #rules-container {
     position: absolute;
     right: 40px;
@@ -125,6 +140,7 @@ body {
     box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
     box-sizing: border-box;
 }
+
 .rules-title {
     color: #00f0ff;
     font-weight: bold;
@@ -134,6 +150,7 @@ body {
     text-transform: uppercase;
     letter-spacing: 3px;
 }
+
 .rule-item {
     background: rgba(255, 255, 255, 0.04);
     padding: 24px;
@@ -143,6 +160,7 @@ body {
     font-size: 24px;
     line-height: 1.6;
 }
+
 .rule-cmd {
     color: #ffcc00;
     font-weight: bold;
@@ -163,9 +181,9 @@ body {
 </div>
 
 <div id="game">
-    <div id="category">Загрузка...</div>
+    <div id="category">Ожидание подключения...</div>
     <div id="word"></div>
-    <div id="instructions">💬 Пиши в чат команды ниже, чтобы играть!</div>
+    <div id="instructions">💬 Подключите вашего стрим-бота к WebSocket!</div>
 </div>
 
 <div id="rules-container">
@@ -175,34 +193,48 @@ body {
     <div class="rule-item">Угадать <b>ВСЁ СЛОВО</b>: <br><span class="rule-cmd">!слово [слово]</span> <br><small style="color: #aaa; font-size: 16px;">Пример: !слово жираф</small></div>
 </div>
 
-<script src="https://jsdelivr.net"></script>
-
 <script>
-// ВАШ ТЕКУЩИЙ ID СТРИМА
-const YOUTUBE_VIDEO_ID = "GP5fWDnvEbg"; 
+// Адрес локального WebSocket вашего бота (например, Streamer.bot или Firebot)
+const WS_URL = "ws://127.0.0.1:8080/"; 
 
+let ws;
 let word = "";
 let guessed = [];
 let scores = {};
 let category = "";
 
 const WORDS = [
-    ["ЖИРАФ", "Животное: Саванна"], 
-    ["ЛЕОПАРД", "Животное: Хищник"], 
-    ["МЕДВЕДЬ", "Животное: Лес"], 
-    ["ОБЕЗЬЯНА", "Животное: Джунгли"], 
-    ["КЕНГУРУ", "Животное: Австралия"],
-    ["СЛОН", "Животное: Саванна"], 
-    ["ТИГР", "Животное: Хищник"], 
-    ["ПАНДА", "Животное: Азия"], 
-    ["ВОЛК", "Животное: Хищник"], 
-    ["ЛИСА", "Животное: Лес"],
-    ["ЗАЯЦ", "Животное: Лес"], 
-    ["БЕГЕМОТ", "Животное: Африка"], 
-    ["НОСОРОГ", "Животное: Африка"], 
-    ["ЗЕБРА", "Животное: Саванна"], 
-    ["ГЕПАРД", "Животное: Скорость"]
+    ["ЖИРАФ", "Животное: Саванна"], ["ЛЕОПАРД", "Животное: Хищник"], ["МЕДВЕДЬ", "Животное: Лес"], ["ОБЕЗЬЯНА", "Животное: Джунгли"], ["КЕНГУРУ", "Животное: Австралия"],
+    ["СЛОН", "Животное: Саванна"], ["ТИГР", "Животное: Хищник"], ["ПАНДА", "Животное: Азия"], ["ВОЛК", "Животное: Хищник"], ["ЛИСА", "Животное: Лес"],
+    ["ЗАЯЦ", "Животное: Лес"], ["БЕГЕМОТ", "Животное: Африка"], ["НОСОРОГ", "Животное: Африка"], ["ЗЕБРА", "Животное: Саванна"], ["ГЕПАРД", "Животное: Скорость"]
 ];
+
+function connect() {
+    ws = new WebSocket(WS_URL);
+
+    ws.onopen = () => {
+        document.getElementById("instructions").innerText = "💬 Бот успешно подключен! Игра начинается.";
+        startRound();
+    };
+
+    ws.onmessage = (msg) => {
+        try {
+            let data = JSON.parse(msg.data);
+            
+            // Считывание из любого локального бота, отправляющего события чата
+            if (data.event === "chat" || data.event === "ChatMessage") {
+                let user = data.user || data.username || data.data?.message?.username;
+                let text = data.message || data.text || data.data?.message?.message;
+                if (user && text) handleChat(user, text);
+            }
+        } catch(e){}
+    };
+
+    ws.onclose = () => {
+        document.getElementById("category").innerText = "Подключение потеряно...";
+        setTimeout(connect, 2000);
+    };
+}
 
 function startRound() {
     let w = WORDS[Math.floor(Math.random() * WORDS.length)];
@@ -217,27 +249,35 @@ function startRound() {
 function renderWord() {
     let div = document.getElementById("word");
     div.innerHTML = "";
-    for (let i = 0; i < word.length; i++) {
+
+    for (let c of word) {
         let el = document.createElement("div");
         el.className = "letter";
-        if (!guessed.includes(word[i])) {
+
+        if (!guessed.includes(c)) {
             el.classList.add("hidden");
-            el.innerText = "?";
+            el.innerText = "_"; // Скрытые буквы отображаются аккуратным нижним подчеркиванием
         } else {
-            el.innerText = word[i];
+            el.innerText = c;
         }
         div.appendChild(el);
     }
 }
 
 function handleChat(user, msg) {
-    let cleanMsg = msg.toUpperCase().replace(/\s+/g, '');
+    let upperMsg = msg.toUpperCase().trim();
 
-    if (cleanMsg.startsWith("!Б")) {
-        let l = cleanMsg.replace("!Б", "").substring(0, 1);
+    // Безопасный парсинг буквы через разделение пробелом
+    if (upperMsg.startsWith("!Б")) {
+        let parts = msg.split(" ");
+        let l = parts[1];
         if (!l) return;
+        l = l.toUpperCase().trim().substring(0, 1);
 
-        if (word.includes(l) && !guessed.includes(l)) {
+        // Защита: если буква уже отгадана — игнорируем, не даем фармить XP
+        if (guessed.includes(l)) return;
+
+        if (word.includes(l)) {
             guessed.push(l);
             addScore(user, 10);
             renderWord();
@@ -245,24 +285,29 @@ function handleChat(user, msg) {
         }
     }
 
-    if (msg.toUpperCase().trim().startsWith("!СЛОВО ")) {
-        let w = msg.toUpperCase().trim().replace("!СЛОВО ", "").trim();
+    if (upperMsg.startsWith("!СЛОВО ")) {
+        let w = upperMsg.replace("!СЛОВО ", "").trim();
+
         if (w === word) {
             guessed = word.split("");
             addScore(user, 50);
             renderWord();
-            setTimeout(startRound, 4000);
+            document.getElementById("instructions").innerText = `🎉 ${user} угадал всё слово целиком! (+50 XP)`;
+            setTimeout(() => {
+                document.getElementById("instructions").innerText = "💬 Пиши в чат команды ниже, чтобы играть!";
+                startRound();
+            }, 4000);
         }
     }
 }
 
 function checkWin() {
     let isWin = true;
-    for (let i = 0; i < word.length; i++) {
-        if (!guessed.includes(word[i])) isWin = false;
+    for (let c of word) {
+        if (!guessed.includes(c)) isWin = false;
     }
     if (isWin) {
-        document.getElementById("instructions").innerText = "🎉 Слово полностью угадано!";
+        document.getElementById("instructions").innerText = "🎉 Раунд завершен! Загадываем следующее животное...";
         setTimeout(() => {
             document.getElementById("instructions").innerText = "💬 Пиши в чат команды ниже, чтобы играть!";
             startRound();
@@ -271,7 +316,7 @@ function checkWin() {
 }
 
 function addScore(user, pts) {
-    scores[user] = (scores[user]||0)+pts;
+    scores[user] = (scores[user] || 0) + pts;
     updateLB();
 }
 
@@ -288,7 +333,7 @@ function updateLeaderboardSlots() {
 }
 
 function updateLB() {
-    let arr = Object.entries(scores).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    let arr = Object.entries(scores).sort((a,b) => b[1] - a[1]).slice(0,10);
     let list = document.getElementById("lb");
     list.innerHTML = "";
 
@@ -310,31 +355,9 @@ function updateLB() {
     }
 }
 
-function startChatListener() {
-    if (!YOUTUBE_VIDEO_ID || YOUTUBE_VIDEO_ID === "") return;
-    try {
-        const liveChat = new YouTubeChat.LiveChat({ liveId: YOUTUBE_VIDEO_ID });
-        liveChat.on("chat", (chatItem) => {
-            if (chatItem && chatItem.author && chatItem.message) {
-                const user = chatItem.author.name;
-                const message = chatItem.message.map(m => m.text || "").join("");
-                handleChat(user, message);
-            }
-        });
-        liveChat.start().catch(err => console.error(err));
-    } catch (e) { console.error(e); }
-}
-
-// Резервное считывание сообщений из встроенного окна чата OBS
-window.addEventListener("message", function(event) {
-    if (event.data && event.data.user && event.data.text) {
-        handleChat(event.data.user, event.data.text);
-    }
-});
-
 updateLeaderboardSlots();
-startRound();
-startChatListener();
+connect();
 </script>
+
 </body>
 </html>
