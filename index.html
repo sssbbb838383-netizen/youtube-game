@@ -2,13 +2,13 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Интерактивная игра для OBS (1000+ слов)</title>
+    <title>Интерактивная игра для OBS - Premium Neon Edition</title>
     <style>
         body {
             margin: 0;
             padding: 0;
             background-color: rgba(0, 0, 0, 0); /* Прозрачный фон для OBS */
-            font-family: 'Arial Black', sans-serif;
+            font-family: 'Montserrat', 'Arial Black', sans-serif;
             color: white;
             overflow: hidden;
             display: flex;
@@ -19,92 +19,165 @@
 
         #game-container {
             text-align: center;
-            background: rgba(15, 16, 28, 0.96);
-            padding: 40px;
-            border-radius: 20px;
-            border: 4px solid #ffcc00;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
-            width: 850px;
+            background: linear-gradient(135deg, rgba(10, 11, 30, 0.93) 0%, rgba(18, 12, 43, 0.97) 100%);
+            padding: 45px 50px;
+            border-radius: 28px;
+            border: 3px solid transparent;
+            /* Анимированная неоновая рамка */
+            border-image: linear-gradient(45deg, #ffcc00, #ff007f, #00f0ff, #ffcc00) 1;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 
+                        0 0 30px rgba(255, 0, 127, 0.2),
+                        inset 0 0 20px rgba(0, 240, 255, 0.1);
+            width: 900px;
+            backdrop-filter: blur(8px);
+            animation: containerGlow 6s infinite alternate;
+        }
+
+        @keyframes containerGlow {
+            0% { box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 20px rgba(255, 0, 127, 0.2); }
+            100% { box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 40px rgba(0, 240, 255, 0.3); }
         }
 
         #category {
-            font-size: 32px;
+            font-size: 36px;
+            font-weight: 900;
             color: #ffcc00;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             text-transform: uppercase;
-            text-shadow: 2px 2px 4px #000;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.6), 2px 2px 4px #000;
+            letter-spacing: 3px;
         }
 
         #word-display {
             display: flex;
             justify-content: center;
-            gap: 12px;
-            margin-bottom: 30px;
+            gap: 14px;
+            margin-bottom: 35px;
             flex-wrap: wrap;
+            min-height: 85px;
         }
 
         .letter-box {
-            width: 60px;
-            height: 70px;
-            background: #ffffff;
-            color: #111111;
-            font-size: 42px;
-            font-weight: bold;
+            width: 65px;
+            height: 75px;
+            background: linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%);
+            color: #0b0c1e;
+            font-size: 44px;
+            font-weight: 900;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 10px;
-            box-shadow: 0 5px 0 #b3b3b3;
+            border-radius: 14px;
+            box-shadow: 0 6px 0 #9e9e9e, 0 10px 20px rgba(0,0,0,0.4);
             text-transform: uppercase;
+            transform: rotateX(0deg);
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s;
+            text-shadow: none;
         }
 
         .hidden-letter {
-            background: #252836;
-            color: #252836 !important;
-            border: 2px solid #45495e;
-            box-shadow: inset 0 0 10px #000;
+            background: linear-gradient(135deg, #1f2336 0%, #0d0f18 100%);
+            color: rgba(0,0,0,0) !important;
+            border: 2px solid #3b425e;
+            box-shadow: inset 0 6px 12px rgba(0,0,0,0.7), 0 4px 8px rgba(0,0,0,0.3);
+            animation: pulseHidden 3s infinite alternate;
+        }
+
+        @keyframes pulseHidden {
+            0% { border-color: #3b425e; }
+            100% { border-color: #00f0ff; }
+        }
+
+        /* Эффект открытия буквы */
+        .revealed {
+            animation: flipOpen 0.5s forwards;
+            background: linear-gradient(180deg, #00ffcc 0%, #00b395 100%) !important;
+            color: #0b0c1e !important;
+            box-shadow: 0 6px 0 #00806a, 0 0 15px rgba(0, 255, 204, 0.6) !important;
+        }
+
+        @keyframes flipOpen {
+            0% { transform: rotateX(90deg); }
+            100% { transform: rotateX(0deg); }
         }
 
         #instructions {
-            font-size: 18px;
-            color: #00ffcc;
-            margin-top: 15px;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px;
-            border-radius: 8px;
+            font-size: 20px;
+            color: #00f0ff;
+            font-weight: bold;
+            margin-top: 20px;
+            background: rgba(0, 240, 255, 0.07);
+            padding: 12px 25px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         #leaderboard {
-            margin-top: 25px;
-            font-size: 20px;
+            margin-top: 40px;
+            font-size: 22px;
             text-align: left;
-            border-top: 2px solid #333;
-            padding-top: 15px;
+            border-top: 2px solid rgba(255, 255, 255, 0.1);
+            padding-top: 25px;
+        }
+
+        .leaderboard-title {
+            color: #ff007f;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(255, 0, 127, 0.5);
         }
 
         .score-entry {
             display: flex;
             justify-content: space-between;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 8px 12px;
-            margin: 5px 0;
-            border-radius: 6px;
-            border-left: 4px solid #ffcc00;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 10px 20px;
+            margin: 8px 0;
+            border-radius: 10px;
+            border-left: 4px solid #ff007f;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: all 0.3s;
+        }
+
+        .score-entry:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateX(5px);
+        }
+
+        .score-entry span:first-child {
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .score-entry span:last-child {
+            color: #00f0ff;
+            font-weight: 900;
+            background: rgba(0, 240, 255, 0.15);
+            padding: 4px 12px;
+            border-radius: 8px;
+            text-shadow: 0 0 5px rgba(0, 240, 255, 0.5);
+            box-shadow: inset 0 0 5px rgba(0, 240, 255, 0.2);
         }
     </style>
 </head>
 <body>
 
     <div id="game-container">
-        <div id="category">Категория: Загрузка базы...</div>
+        <div id="category">Категория: Инициализация матриц...</div>
         <div id="word-display"></div>
         
         <div id="instructions">💬 Команды для чата: !б [буква] или !слово [слово]</div>
         
         <div id="leaderboard">
-            <div style="color: #ff4757; font-weight: bold; margin-bottom: 10px;">🏆 ТОП ИГРОКОВ РАУНДА:</div>
+            <div class="leaderboard-title">🏆 ТОП ИГРОКОВ КИБЕР-РАУНДА:</div>
             <div id="leaderboard-list">
-                <div style="color: #888; font-style: italic;">Ожидание ходов зрителей...</div>
+                <div style="color: #6c7289; font-style: italic; text-align: center;">Ожидание подключения к чату YouTube...</div>
             </div>
         </div>
     </div>
@@ -118,7 +191,7 @@
         // =========================================================================
         const YOUTUBE_VIDEO_ID = ""; 
 
-        // 📝 Базовый интеллектуальный массив (генерирует свыше 1000 игровых комбинаций в памяти)
+        // 📝 Базовый интеллектуальный массив
         const BASE_DATABASE = [
             { word: "АРБУЗ", category: "Еда / Ягода" }, { word: "ПЕЛЬМЕНИ", category: "Еда / Блюдо" }, { word: "ШОКОЛАД", category: "Еда / Сладость" }, { word: "ПИЦЦА", category: "Еда / Блюдо" }, { word: "ЛИМОНАД", category: "Напиток" }, { word: "БОРЩ", category: "Еда / Блюдо" },
             { word: "ОБЕЗЬЯНА", category: "Животное" }, { word: "ЖИРАФ", category: "Животное" }, { word: "ПИНГВИН", category: "Птица" }, { word: "КЕНГУРУ", category: "Животное" }, { word: "ТИГР", category: "Животное / Хищник" }, { word: "ПАНДА", category: "Животное" },
@@ -136,12 +209,8 @@
         const suffixes = ["ФАНАТ", "МАСТЕР", "ЭКСПЕРТ", "ПРОФИ", "ГИД", "ЦЕНТР", "БОТ", "КЛУБ", "ТРОН", "ПАРК", "МИР", "ЗОНА", "СЕТЬ", "КОД", "ЛАБ"];
 
         BASE_DATABASE.forEach(item => {
-            prefixes.forEach(p => {
-                WORDS_DATABASE.push({ word: p + item.word, category: "Модификация: " + item.category });
-            });
-            suffixes.forEach(s => {
-                WORDS_DATABASE.push({ word: item.word + s, category: "Вариация: " + item.category });
-            });
+            prefixes.forEach(p => { WORDS_DATABASE.push({ word: p + item.word, category: "Модификация: " + item.category }); });
+            suffixes.forEach(s => { WORDS_DATABASE.push({ word: item.word + s, category: "Вариация: " + item.category }); });
         });
 
         let currentWordObj = {};
@@ -151,77 +220,3 @@
         function initNewRound() {
             currentWordObj = WORDS_DATABASE[Math.floor(Math.random() * WORDS_DATABASE.length)];
             guessedLetters = [];
-            document.getElementById("category").innerText = `Категория: ${currentWordObj.category}`;
-            renderWord();
-        }
-
-        function renderWord() {
-            const container = document.getElementById("word-display");
-            container.innerHTML = "";
-
-            for (let char of currentWordObj.word) {
-                const box = document.createElement("div");
-                box.classList.add("letter-box");
-
-                if (guessedLetters.includes(char)) {
-                    box.innerText = char;
-                } else {
-                    box.classList.add("hidden-letter");
-                    box.innerText = "?";
-                }
-                container.appendChild(box);
-            }
-        }
-
-        function processGameMessage(user, msg) {
-            msg = msg.trim().toUpperCase();
-
-            if (msg.startsWith("!Б ")) {
-                let letter = msg.replace("!Б ", "").trim().substring(0, 1);
-                if (!letter) return;
-
-                if (currentWordObj.word.includes(letter) && !guessedLetters.includes(letter)) {
-                    guessedLetters.push(letter);
-                    scores[user] = (scores[user] || 0) + 10;
-                    renderWord();
-                    updateLeaderboard();
-                    checkWin();
-                }
-            }
-
-            if (msg.startsWith("!СЛОВО ")) {
-                let guessedWord = msg.replace("!СЛОВО ", "").trim();
-                if (guessedWord === currentWordObj.word) {
-                    scores[user] = (scores[user] || 0) + 50;
-                    guessedLetters = currentWordObj.word.split("");
-                    renderWord();
-                    updateLeaderboard();
-                    
-                    document.getElementById("instructions").innerText = `🎉 Зритель ${user} угадал слово целиком! (+50 XP)`;
-                    setTimeout(() => {
-                        document.getElementById("instructions").innerText = "💬 Команды для чата: !б [буква] или !слово [слово]";
-                        initNewRound();
-                    }, 4000);
-                }
-            }
-        }
-
-        function checkWin() {
-            let isWin = true;
-            for (let char of currentWordObj.word) {
-                if (!guessedLetters.includes(char)) isWin = false;
-            }
-            if (isWin) {
-                document.getElementById("instructions").innerText = "🎉 Слово полностью разгадано! Готовим следующее...";
-                setTimeout(() => {
-                    document.getElementById("instructions").innerText = "💬 Команды для чата: !б [буква] или !слово [слово]";
-                    initNewRound();
-                }, 4000);
-            }
-        }
-
-        function updateLeaderboard() {
-            const list = document.getElementById("leaderboard-list");
-            list.innerHTML = "";
-            let sorted = Object.entries(scores).sort((a, b) => b - a).slice(0, 5);
-            
